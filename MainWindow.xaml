@@ -1,0 +1,147 @@
+﻿<Window x:Class="MusicManagerMultiplicity.MainWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        xmlns:local="clr-namespace:MusicManagerMultiplicity"
+        xmlns:sys="clr-namespace:System;assembly=mscorlib"
+        mc:Ignorable="d"
+        Title="Music Manager" Height="450" Width="800">
+  
+    
+    <Grid Margin="5">
+        <Grid.RowDefinitions>
+            <RowDefinition Height="3.5*" />
+            <RowDefinition Height="75" />
+        </Grid.RowDefinitions>
+
+        <Grid.ColumnDefinitions>
+            <ColumnDefinition Width="*" />
+        </Grid.ColumnDefinitions>
+
+        <StackPanel x:Name="UserControls" Grid.Row="2">
+            <StackPanel Orientation="Horizontal">
+                <Button x:Name="MainPlayButton" Margin="5" Click="PlayCurrentSong">Play</Button>
+                <Button x:Name="MainPauseButton" Margin="5" Click="PauseCurrentSong">Pause</Button>
+                <Button x:Name="PreviousSongButton" Margin="5" Click="GoToLastSong">Previous</Button>
+                <Button x:Name="NextSongButton" Margin="5" Click="GoToNextSong">Next</Button>
+                <Button x:Name="ShuffleButton" Margin="5" Click="ShufflePlaylist">Next</Button>
+                
+            </StackPanel>
+            <Slider></Slider>
+            
+        </StackPanel>
+        
+        <Grid x:Name="PlayingInfo"  Margin="0">
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="160" />
+                <ColumnDefinition Width="*" />
+            </Grid.ColumnDefinitions>
+
+            <Grid Grid.Column="2">
+                <Grid.RowDefinitions>
+                    <RowDefinition Height="Auto"/>
+                    <RowDefinition Height="*" />
+                </Grid.RowDefinitions>
+
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="*"/>
+                </Grid.ColumnDefinitions>
+                
+                
+
+                <StackPanel Grid.Row="0">
+                    <StackPanel>
+                        <StackPanel Grid.Row="0" Orientation="Horizontal">
+                            <Button x:Name="SoulseekConnectbutton" Margin="5">Connect to Soulseek</Button>
+                            <Button x:Name="OpenLibraryButton" Margin="5">Open Your Library</Button>
+                        </StackPanel>
+                        <ProgressBar x:Name="progressBar1" Value="0" Maximum="100" Margin="0,2" Height="3"/>
+                        <TextBox x:Name="SearchBar" Margin="0,4">Search Playlists</TextBox>
+                    </StackPanel>
+                    
+                </StackPanel>
+                
+                <Grid Grid.Row="1">
+                    <Grid.RowDefinitions>
+                        <RowDefinition Height="*"/>
+                        <RowDefinition Height="Auto" />
+                    </Grid.RowDefinitions>
+
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="*"/>
+                    </Grid.ColumnDefinitions>
+
+                    <ListBox Grid.Row="0" x:Name="PlaylistListBox" Background="AntiqueWhite">
+                        
+                        <ListBox.ItemContainerStyle>
+                            <Style TargetType="ListBoxItem">
+                                <Setter Property="HorizontalContentAlignment" Value="Stretch"/>
+                            </Style>
+                        </ListBox.ItemContainerStyle>
+                        
+                        <ListBox.ItemTemplate>
+                            <DataTemplate>
+                                <Grid>
+                                    <Grid.RowDefinitions>
+                                        <RowDefinition Height="*"/>
+                                    </Grid.RowDefinitions>
+
+                                    <Grid.ColumnDefinitions>
+                                        <ColumnDefinition Width="*"/>
+                                        <ColumnDefinition Width="*"/>
+                                    </Grid.ColumnDefinitions>
+
+                                    <StackPanel Orientation="Horizontal" Grid.Column="0">
+                                        <Image x:Name="PlaylistArt" Width="50" Source="{Binding ImageSource}"/>
+                                        <TextBlock Text="{Binding PlaylistName}" Margin="8, 5" FontSize="17" FontFamily="Times New Roman" FontWeight="Bold" VerticalAlignment="Center"/>
+                                    </StackPanel>
+
+                                    <StackPanel Orientation="Horizontal" Grid.Column="1" HorizontalAlignment="Right" VerticalAlignment="Center">
+                                        <Button Tag="{Binding PlayButtonName}" HorizontalAlignment="Right" Click="PlaySelectedPlaylist" Margin="5,0">Play</Button>
+                                        <Button HorizontalAlignment="Right" Click="EditSelectedPlaylist" Margin="5,0">Edit</Button>
+                                    </StackPanel>
+                                </Grid>
+                            </DataTemplate>
+                        </ListBox.ItemTemplate>
+
+                        <ListBox.Items>
+                        </ListBox.Items>
+                    </ListBox>
+
+                    <StackPanel Orientation="Horizontal" Grid.Row="1">
+                        <Button x:Name="CreatePlaylist" Margin="5" Click="CreateNewPlaylist">Create Playlist</Button>
+                        <Button x:Name="AddSong" Margin="5">Add Song</Button>
+                    </StackPanel>
+                </Grid>
+                
+            </Grid>
+
+
+            <Grid>
+                <Grid.RowDefinitions>
+                    <RowDefinition Height="*"/>
+                    <RowDefinition Height="Auto"/>
+                </Grid.RowDefinitions>
+
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="*"/>
+                </Grid.ColumnDefinitions>
+
+                <StackPanel Margin="5,0,0,0">
+                    <Image x:Name="AlbumArt" Width="150" Source="/Assets/default.png"/>
+                    <TextBlock Text="{Binding Text, UpdateSourceTrigger=PropertyChanged}"/>
+                    <TextBlock Text="{Binding Text, UpdateSourceTrigger=PropertyChanged}"/>
+
+                </StackPanel>
+
+                <StackPanel Grid.Row="1">
+                    <Label>Volume</Label>
+                    <Slider/>
+                </StackPanel>
+                
+            </Grid>
+            
+        </Grid>
+    </Grid>
+</Window>
