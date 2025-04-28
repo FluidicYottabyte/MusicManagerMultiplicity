@@ -61,5 +61,15 @@ namespace MusicManagerMultiplicity
 
             }
         }
+
+        private void CreatePlaylist(object sender, RoutedEventArgs e)
+        {
+
+        }
+
+        private void CancelPlaylistCollection(object sender, RoutedEventArgs e)
+        {
+
+        }
     }
 }

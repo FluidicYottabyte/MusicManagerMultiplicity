@@ -16,6 +16,8 @@ using System.Windows.Media.Imaging;
 using System.Windows.Navigation;
 using System.Windows.Resources;
 using System.Windows.Shapes;
+using TagLib.Id3v2;
+using static System.Net.Mime.MediaTypeNames;
 
 namespace MusicManagerMultiplicity
 {
@@ -32,6 +34,7 @@ namespace MusicManagerMultiplicity
         private SongLibrary songLibrary = new SongLibrary();
 
         private static string localAppData = Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData);
+        private static string appDataFolder = System.IO.Path.Combine(localAppData, "MusicManagerMultiplicity");
 
         public MainWindow()
         {
@@ -44,6 +47,12 @@ namespace MusicManagerMultiplicity
             PlaylistListBox.ItemsSource = Playlists;
 
             playlistLibrary.CreatePlaylistUI(Playlists);
+
+            if (File.Exists("/Assets/default.png")) //Finish implementing the default image loading
+            {
+                Uri uri = new Uri("/Assets/default.png", UriKind.RelativeOrAbsolute);
+                AlbumArt.Source = BitmapFrame.Create(uri);
+            }
 
             //Playlists.Add(new PlaylistItem { ImageSource = "playlist1.jpg", PlaylistName = "Rock Classics", PlayButtonName = "btnPlayRock" });
             //Playlists.Add(new PlaylistItem { ImageSource = "playlist2.jpg", PlaylistName = "Pop Hits", PlayButtonName = "btnPlayPop" });

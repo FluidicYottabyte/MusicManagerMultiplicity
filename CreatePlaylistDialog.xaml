@@ -14,6 +14,7 @@
 
         <Grid.RowDefinitions>
             <RowDefinition Height="*"/>
+            <RowDefinition Height="Auto"/>
         </Grid.RowDefinitions>
 
         <Grid>
@@ -56,7 +57,10 @@
         </Grid>
 
 
-
+        <StackPanel Orientation="Horizontal" Grid.Row="1" Margin="5">
+            <Button Tag="{Binding CreatePlaylistName}" HorizontalAlignment="Center" Click="CreatePlaylist" Margin="5,0">Done</Button>
+            <Button Tag="{Binding CancelButton}" HorizontalAlignment="Center" Click="CancelPlaylistCollection" Margin="5,0">Cancel</Button>
+        </StackPanel>
 
 
         <Grid Grid.Column="1" VerticalAlignment="Stretch">
