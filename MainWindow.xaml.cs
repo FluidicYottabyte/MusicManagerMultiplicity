@@ -117,5 +117,11 @@ namespace MusicManagerMultiplicity
             CreatePlaylistDialog playlistEdit = new CreatePlaylistDialog(songLibrary);
             playlistEdit.Show();
         }
+
+        private void AddNewSong(object sender, RoutedEventArgs e)
+        {
+            AddSong addSongWindow = new AddSong();
+            addSongWindow.Show();
+        }
     }
 }

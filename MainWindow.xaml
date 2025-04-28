@@ -111,7 +111,7 @@
 
                     <StackPanel Orientation="Horizontal" Grid.Row="1">
                         <Button x:Name="CreatePlaylist" Margin="5" Click="CreateNewPlaylist">Create Playlist</Button>
-                        <Button x:Name="AddSong" Margin="5">Add Song</Button>
+                        <Button x:Name="AddSong" Click="AddNewSong" Margin="5">Add Song</Button>
                     </StackPanel>
                 </Grid>
                 

@@ -6,7 +6,73 @@
         xmlns:local="clr-namespace:MusicManagerMultiplicity"
         mc:Ignorable="d"
         Title="AddSong" Height="450" Width="800">
-    <Grid>
+    <Grid VerticalAlignment="Stretch">
+        <Grid.ColumnDefinitions>
+            <ColumnDefinition Width=".5*"/>
+            <ColumnDefinition Width="*"/>
+        </Grid.ColumnDefinitions>
+
+        <Grid.RowDefinitions>
+            <RowDefinition Height="*"/>
+        </Grid.RowDefinitions>
+
+        <Grid VerticalAlignment="Stretch">
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="*"/>
+            </Grid.ColumnDefinitions>
+
+            <Grid.RowDefinitions>
+                <RowDefinition Height="Auto"/>
+                <RowDefinition Height="*"/>
+            </Grid.RowDefinitions>
+            <TextBlock FontSize="25" FontWeight="Bold" Margin="5">Songs to load</TextBlock>
+            <ListBox Margin="5" VerticalAlignment="Stretch" Grid.Row="1">
+                <ListBoxItem>Test Song</ListBoxItem>
+            </ListBox>
+        </Grid>
+
+        <Grid Grid.Column="1">
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="*"/>
+                <ColumnDefinition Width="*"/>
+            </Grid.ColumnDefinitions>
+
+            <Grid.RowDefinitions>
+                <RowDefinition Height="*"/>
+            </Grid.RowDefinitions>
+
+            <StackPanel Name="ImagePanel" Drop="ImagePanel_Drop" AllowDrop="true" Grid.Column="1">
+                <TextBlock TextWrapping="Wrap" FontSize="35" HorizontalAlignment="Center" VerticalAlignment="Center">Drop files here (onto text)</TextBlock>
+            </StackPanel>
+
+            <StackPanel>
+                <TextBlock Margin="5" FontSize="18" FontWeight="Bold">Edit Song Details</TextBlock>
+                <Image VerticalAlignment="Top" HorizontalAlignment="Left" Margin="5" x:Name="AlbumArt" Width="150" Source="/Assets/default.png"/>
+
+                <Label>Name</Label>
+                <TextBox FontSize="20" TextWrapping="NoWrap" Margin="5">Song Name</TextBox>
+                <Label>Artist</Label>
+                <MusicManagerMultiplicity.Classes:FilteredComboBox ItemsSource="{Binding MyItemsSource}"
+                    SelectedItem="{Binding MySelectedItem}"
+                    DisplayMemberPath="Name" 
+                    IsEditable="True" 
+                    IsTextSearchEnabled="False" 
+                    StaysOpenOnEdit="True">
+
+                    <MusicManagerMultiplicity.Classes:FilteredComboBox.ItemsPanel>
+                        <ItemsPanelTemplate>
+                            <VirtualizingStackPanel VirtualizationMode="Recycling" />
+                        </ItemsPanelTemplate>
+                    </MusicManagerMultiplicity.Classes:FilteredComboBox.ItemsPanel>
+                </MusicManagerMultiplicity.Classes:FilteredComboBox>
+
+                <Button>Delete</Button>
+            </StackPanel>
+            
+        </Grid>
+        
+
         
     </Grid>
+    
 </Window>
