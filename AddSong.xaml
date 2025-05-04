@@ -52,19 +52,19 @@
                 <Label>Name</Label>
                 <TextBox FontSize="20" TextWrapping="NoWrap" Margin="5">Song Name</TextBox>
                 <Label>Artist</Label>
-                <MusicManagerMultiplicity.Classes:FilteredComboBox ItemsSource="{Binding MyItemsSource}"
+                <MusicManagerMultiplicity:FilteredComboBox ItemsSource="{Binding MyItemsSource}"
                     SelectedItem="{Binding MySelectedItem}"
                     DisplayMemberPath="Name" 
                     IsEditable="True" 
                     IsTextSearchEnabled="False" 
                     StaysOpenOnEdit="True">
 
-                    <MusicManagerMultiplicity.Classes:FilteredComboBox.ItemsPanel>
+                    <MusicManagerMultiplicity:FilteredComboBox.ItemsPanel>
                         <ItemsPanelTemplate>
                             <VirtualizingStackPanel VirtualizationMode="Recycling" />
                         </ItemsPanelTemplate>
-                    </MusicManagerMultiplicity.Classes:FilteredComboBox.ItemsPanel>
-                </MusicManagerMultiplicity.Classes:FilteredComboBox>
+                    </MusicManagerMultiplicity:FilteredComboBox.ItemsPanel>
+                </MusicManagerMultiplicity:FilteredComboBox>
 
                 <Button>Delete</Button>
             </StackPanel>
