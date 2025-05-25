@@ -4,9 +4,10 @@
         xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:local="clr-namespace:MusicManagerMultiplicity"
+        xmlns:mm="clr-namespace:MusicManagerMultiplicity.Classes"
         mc:Ignorable="d"
         Title="AddSong" Height="450" Width="800">
-    <Grid VerticalAlignment="Stretch">
+    <Grid VerticalAlignment="Stretch" HorizontalAlignment="Stretch">
         <Grid.ColumnDefinitions>
             <ColumnDefinition Width=".5*"/>
             <ColumnDefinition Width="*"/>
@@ -25,10 +26,43 @@
                 <RowDefinition Height="Auto"/>
                 <RowDefinition Height="*"/>
             </Grid.RowDefinitions>
-            <TextBlock FontSize="25" FontWeight="Bold" Margin="5">Songs to load</TextBlock>
-            <ListBox Margin="5" VerticalAlignment="Stretch" Grid.Row="1">
-                <ListBoxItem>Test Song</ListBoxItem>
+            <TextBlock FontSize="15" FontWeight="Bold" Margin="5">Songs to load</TextBlock>
+            <ListBox Margin="5"
+         VerticalAlignment="Stretch"
+         Grid.Row="1"
+         Name="SongLoadList"
+         SelectionChanged="ListSelectionChanged"
+         HorizontalContentAlignment="Stretch">
+                <!-- Forces item containers to stretch -->
+
+                <ListBox.ItemTemplate>
+                    <DataTemplate>
+                        <Border Style="{DynamicResource BorderWithMainBackground}"
+                    Padding="5">
+                            <Grid>
+                                <Grid.RowDefinitions>
+                                    <RowDefinition Height="Auto"/>
+                                </Grid.RowDefinitions>
+                                <Grid.ColumnDefinitions>
+                                    <ColumnDefinition Width="*"/>
+                                    <ColumnDefinition Width="Auto"/>
+                                </Grid.ColumnDefinitions>
+
+                                <TextBlock Tag="{Binding StringSongID}"
+                               Text="{Binding Name}"
+                               FontSize="17"
+                               FontFamily="Times New Roman"
+                               FontWeight="Bold"
+                               VerticalAlignment="Center"
+                               TextWrapping="Wrap"
+                               Grid.Column="0"
+                               TextTrimming="None" />
+                            </Grid>
+                        </Border>
+                    </DataTemplate>
+                </ListBox.ItemTemplate>
             </ListBox>
+
         </Grid>
 
         <Grid Grid.Column="1">
@@ -42,32 +76,91 @@
             </Grid.RowDefinitions>
 
             <StackPanel Name="ImagePanel" Drop="ImagePanel_Drop" AllowDrop="true" Grid.Column="1">
-                <TextBlock TextWrapping="Wrap" FontSize="35" HorizontalAlignment="Center" VerticalAlignment="Center">Drop files here (onto text)</TextBlock>
+                <Image VerticalAlignment="Top" HorizontalAlignment="Center" Margin="15" x:Name="AlbumArt" Width="Auto" Source="/Assets/default.png">
+                    <Image.Effect>
+                        <DropShadowEffect
+                          ShadowDepth="10"
+                          Direction="330"
+                          Color="Black"
+                          Opacity="0.5"
+                         BlurRadius="4"/>
+                    </Image.Effect>
+                </Image>
+
+                <TextBlock TextWrapping="Wrap" FontSize="35" HorizontalAlignment="Center" TextAlignment="Center" VerticalAlignment="Center">Drag &amp; Drop Files Here</TextBlock>
             </StackPanel>
 
-            <StackPanel>
-                <TextBlock Margin="5" FontSize="18" FontWeight="Bold">Edit Song Details</TextBlock>
-                <Image VerticalAlignment="Top" HorizontalAlignment="Left" Margin="5" x:Name="AlbumArt" Width="150" Source="/Assets/default.png"/>
+            <Grid VerticalAlignment="Stretch" Grid.Column="0">
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="*"/>
+                </Grid.ColumnDefinitions>
 
-                <Label>Name</Label>
-                <TextBox FontSize="20" TextWrapping="NoWrap" Margin="5">Song Name</TextBox>
-                <Label>Artist</Label>
-                <MusicManagerMultiplicity:FilteredComboBox ItemsSource="{Binding MyItemsSource}"
-                    SelectedItem="{Binding MySelectedItem}"
-                    DisplayMemberPath="Name" 
-                    IsEditable="True" 
-                    IsTextSearchEnabled="False" 
-                    StaysOpenOnEdit="True">
+                <Grid.RowDefinitions>
+                    <RowDefinition Height="Auto"/>
+                    <RowDefinition Height="*"/>
+                    <RowDefinition Height="Auto"/>
+                </Grid.RowDefinitions>
 
-                    <MusicManagerMultiplicity:FilteredComboBox.ItemsPanel>
-                        <ItemsPanelTemplate>
-                            <VirtualizingStackPanel VirtualizationMode="Recycling" />
-                        </ItemsPanelTemplate>
-                    </MusicManagerMultiplicity:FilteredComboBox.ItemsPanel>
-                </MusicManagerMultiplicity:FilteredComboBox>
+                <StackPanel>
+                    <TextBlock Margin="5" FontSize="18" FontWeight="Bold">Edit Song Details</TextBlock>
 
-                <Button>Delete</Button>
-            </StackPanel>
+                    <Label>Name</Label>
+                    <TextBox FontSize="15" TextWrapping="NoWrap" Margin="5" x:Name="SongNameBox" TextChanged="UpdateName"></TextBox>
+
+                    <Label>Album (optional)</Label>
+                    <mm:FilteredComboBox  x:Name="AlbumSearchBox" ItemsPanel="{DynamicResource AlbumItems}" Margin="5" FontSize="15" MinWidth="200" HorizontalAlignment="Stretch"/>
+
+
+
+                    <Label>Artist</Label>
+                        <Grid>
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="*"/>
+                                <ColumnDefinition Width="Auto"/>
+                            </Grid.ColumnDefinitions>
+
+                            <Grid.RowDefinitions>
+                                <RowDefinition Height="*"/>
+                            </Grid.RowDefinitions>
+
+                            <mm:FilteredComboBox  x:Name="ArtistSearchBox" ItemsPanel="{DynamicResource ItemsTemplate}" Margin="5" FontSize="15" MinWidth="200" HorizontalAlignment="Stretch"/>
+                            <Button Grid.Column="1" Padding="4,2" Margin="5" Click="AddArtist">Add</Button>
+                            
+                        </Grid>
+                </StackPanel>
+                
+                
+                <ListBox Margin="5" ScrollViewer.VerticalScrollBarVisibility="Visible" Height="Auto" Grid.Row="1" Name="ArtistBox">
+                    <ListBox.ItemTemplate>
+                        <DataTemplate>
+                            <Grid>
+                                <Grid.RowDefinitions>
+                                    <RowDefinition Height="*"/>
+                                </Grid.RowDefinitions>
+
+                                <Grid.ColumnDefinitions>
+                                    <ColumnDefinition Width="*"/>
+                                    <ColumnDefinition Width="*"/>
+                                </Grid.ColumnDefinitions>
+
+                                <StackPanel Orientation="Horizontal" Grid.Column="1">
+                                    <TextBlock Text="{Binding ArtistName}" Margin="8, 5" FontSize="12" FontFamily="Times New Roman" FontWeight="Bold" VerticalAlignment="Center"/>
+                                </StackPanel>
+
+                                <StackPanel Orientation="Horizontal" Grid.Column="0" HorizontalAlignment="Right" VerticalAlignment="Center">
+                                    <Button Tag="{Binding DeleteButtonName}" HorizontalAlignment="Right" Click="DeleteArtist" Margin="5,0">Delete</Button>
+                                </StackPanel>
+                            </Grid>
+                        </DataTemplate>
+                    </ListBox.ItemTemplate>
+
+                </ListBox>
+
+                <StackPanel Grid.Row="2">
+                    <Button Click="DeleteCurrentSong" Margin="5">Delete</Button>
+                </StackPanel>
+                
+            </Grid>
             
         </Grid>
         

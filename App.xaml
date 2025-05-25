@@ -2,8 +2,85 @@
              xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
              xmlns:local="clr-namespace:MusicManagerMultiplicity"
+             xmlns:sys="clr-namespace:System;assembly=mscorlib"
              StartupUri="MainWindow.xaml">
     <Application.Resources>
-         
+        <SolidColorBrush x:Key="MainBackground" Color="#ffeca7" />
+        <SolidColorBrush x:Key="AccentBackground" Color="#e49364" />
+
+        <SolidColorBrush x:Key="MainForeground" Color="#db434c" />
+        <SolidColorBrush x:Key="AccentForeground" Color="#c70039" />
+
+        <SolidColorBrush x:Key="TertiaryMidrange" Color="#581845" />
+        <SolidColorBrush x:Key="AccentTertiary" Color="#3e3426" />
+
+        <Thickness x:Key="bThin">2</Thickness>
+
+        <CornerRadius x:Key="bRadius">5</CornerRadius>
+        <CornerRadius x:Key="sRadius">2</CornerRadius>
+
+
+        <Style TargetType="{x:Type ComboBoxItem}">
+            <Setter Property="HorizontalContentAlignment" Value="Left" />
+            <Setter Property="VerticalContentAlignment" Value="Top" />
+        </Style>
+
+        <Style TargetType="Grid">
+            <Setter Property="Background" Value="{StaticResource MainBackground}"/>
+        </Style>
+
+        <Style TargetType="Grid" x:Key="ListboxGrid">
+            <Setter Property="Background" Value="{StaticResource MainBackground}"/>
+        </Style>
+
+        <Style TargetType="StackPanel">
+            <Setter Property="Background" Value="{StaticResource MainBackground}"/>
+        </Style>
+
+        <Style TargetType="ListBox">
+            <Setter Property="Background" Value="{StaticResource AccentBackground}"/>
+            <Setter Property="BorderThickness" Value="0"/>
+        </Style>
+
+        <Style TargetType="Button">
+            <Setter Property="Background" Value="{StaticResource MainForeground}"/>
+            <Setter Property="BorderThickness" Value="0"/>
+            <Setter Property="Padding" Value="10,5"/>
+
+            <Setter Property="VerticalAlignment" Value="Stretch"/>
+            <Setter Property="HorizontalAlignment" Value="Stretch"/>
+            
+            <Style.Triggers>
+                <Trigger Property="IsMouseOver" Value="True">
+                    <Setter Property="Background" Value="{StaticResource AccentForeground}"/>
+                </Trigger>
+            </Style.Triggers>
+        </Style>
+
+        <Style TargetType="Border">
+            <Setter Property="BorderBrush" Value="{StaticResource AccentTertiary}"/>
+            <Setter Property="BorderThickness" Value="{StaticResource bThin}"/>
+            <Setter Property="CornerRadius" Value="{StaticResource bRadius}"/>
+        </Style>
+
+        <Style TargetType="Border" x:Key="BorderWithMainBackground">
+            <Setter Property="Background" Value="{StaticResource MainBackground}"/>
+            <Setter Property="BorderBrush" Value="{StaticResource AccentTertiary}"/>
+            <Setter Property="BorderThickness" Value="{StaticResource bThin}"/>
+            <Setter Property="CornerRadius" Value="{StaticResource bRadius}"/>
+        </Style>
+
+        <Style TargetType="Border" x:Key="ButtonCorners">
+            <Setter Property="BorderBrush" Value="{StaticResource AccentTertiary}"/>
+            <Setter Property="BorderThickness" Value="{StaticResource bThin}"/>
+            <Setter Property="CornerRadius" Value="{StaticResource sRadius}"/>
+        </Style>
+
+        <Style TargetType="Border" x:Key="HighlyRoundedCorners">
+            <Setter Property="BorderBrush" Value="{StaticResource AccentTertiary}"/>
+            <Setter Property="BorderThickness" Value="{StaticResource bThin}"/>
+            <Setter Property="CornerRadius" Value="{StaticResource bRadius}"/>
+        </Style>
+
     </Application.Resources>
 </Application>

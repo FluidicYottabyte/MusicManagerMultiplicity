@@ -14,9 +14,11 @@
   </ItemGroup>
 
   <ItemGroup>
-    <Content Include="Assets\default.png" />
+    <Resource Include="Assets\default.png">
+      <CopyToOutputDirectory>Never</CopyToOutputDirectory>
+    </Resource>
     <Content Include="Assets\TestSong.mp3">
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+      <CopyToOutputDirectory>Never</CopyToOutputDirectory>
     </Content>
   </ItemGroup>
 

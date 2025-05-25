@@ -33,11 +33,17 @@ namespace MusicManagerMultiplicity
         private PlaylistLibrary playlistLibrary = new PlaylistLibrary();
         private SongLibrary songLibrary = new SongLibrary();
 
+        private ArtistListManager artistManager = new ArtistListManager();
+        private AlbumListManager albumManager = new AlbumListManager();
+
         private static string localAppData = Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData);
         private static string appDataFolder = System.IO.Path.Combine(localAppData, "MusicManagerMultiplicity");
 
         public MainWindow()
         {
+            artistManager.regenerateArtistList(songLibrary); //Don't leave this forever, import the artist list once you create the json encode/decode for it
+            albumManager.regenerateAlbumList(songLibrary); //This too, these will both cause lag on each startup with larger libraries
+
             InitializeComponent();
 
             DataContext = playerManager;
@@ -120,7 +126,7 @@ namespace MusicManagerMultiplicity
 
         private void AddNewSong(object sender, RoutedEventArgs e)
         {
-            AddSong addSongWindow = new AddSong();
+            AddSong addSongWindow = new AddSong(artistManager, albumManager);
             addSongWindow.Show();
         }
     }

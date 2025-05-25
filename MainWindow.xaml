@@ -5,6 +5,7 @@
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:local="clr-namespace:MusicManagerMultiplicity"
         xmlns:sys="clr-namespace:System;assembly=mscorlib"
+        xmlns:mm="clr-namespace:MusicManagerMultiplicity.Classes"
         mc:Ignorable="d"
         Title="Music Manager" Height="450" Width="800">
   
@@ -72,8 +73,9 @@
                         <ColumnDefinition Width="*"/>
                     </Grid.ColumnDefinitions>
 
-                    <ListBox Grid.Row="0" x:Name="PlaylistListBox" Background="AntiqueWhite">
-                        
+                    <Border Style="{StaticResource HighlyRoundedCorners}">
+                        <ListBox Grid.Row="0" x:Name="PlaylistListBox">
+
                         <ListBox.ItemContainerStyle>
                             <Style TargetType="ListBoxItem">
                                 <Setter Property="HorizontalContentAlignment" Value="Stretch"/>
@@ -109,9 +111,15 @@
                         </ListBox.Items>
                     </ListBox>
 
+                        </Border>
+
                     <StackPanel Orientation="Horizontal" Grid.Row="1">
-                        <Button x:Name="CreatePlaylist" Margin="5" Click="CreateNewPlaylist">Create Playlist</Button>
-                        <Button x:Name="AddSong" Click="AddNewSong" Margin="5">Add Song</Button>
+                        <Border Margin="5" Style="{StaticResource ButtonCorners}">
+                            <Button x:Name="CreatePlaylist" Click="CreateNewPlaylist">Create Playlist</Button>
+                        </Border>
+                        <Border Margin="5" Style="{StaticResource ButtonCorners}">
+                            <Button x:Name="AddSong" Click="AddNewSong">Add Song</Button>
+                        </Border>
                     </StackPanel>
                 </Grid>
                 

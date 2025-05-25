@@ -7,13 +7,18 @@ using System.Windows.Controls;
 
 namespace MusicManagerMultiplicity.Classes
 {
-    internal class Album
+    public class Album
     {
-        private string AlbumName;
-        private Artist AlbumArtist; //In the future, consider implimenting a list of artists, in case there are more than one artists.
+        public string AlbumName { get; set; }
+        public List<Artist> AlbumArtists = new List<Artist>(); //In the future, consider implimenting a list of artists, in case there are more than one artists.
 
-        private List<Song> AlbumSongs = new List<Song>();
+        public List<Song> AlbumSongs = new List<Song>();
 
         private Image AlbumCover;
+
+        public Album(string name)
+        {
+            AlbumName = name;
+        }
     }
 }

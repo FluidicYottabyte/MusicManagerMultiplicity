@@ -3,7 +3,7 @@ using System.Windows.Controls;
 using System.Windows.Data;
 using System.Windows.Input;
 
-namespace MusicManagerMultiplicity
+namespace MusicManagerMultiplicity.Classes
 {
     public class FilteredComboBox : ComboBox
     {

@@ -53,7 +53,7 @@ namespace MusicManagerMultiplicity.Classes
                 {
                     Song LoadedFile = JsonHelper.LoadSongFromJson(files[i]);
 
-                    if (LoadedFile == null) { continue; } //Self explanitory, if you can't understand this why the fuck are you looking at this code
+                    if (LoadedFile == null) { continue; } //Self explanatory, if you can't understand this why the fuck are you looking at this code
 
                     AllSongs.Add(LoadedFile);
                 }
@@ -116,13 +116,13 @@ namespace MusicManagerMultiplicity.Classes
 
                 if (AllSongs[i].Name == null) { continue; }
 
-                if (AllSongs[i].SongCoverFilepath == null)
+                if (AllSongs[i].SongCover == null)
                 {
-                    ListBox.Add(new SongItem { ImageSource = "", SongName = AllSongs[i].Name, AddButtonName = AllSongs[i].songID.ToString() });
+                    ListBox.Add(new SongItem { ImageSource = "", SongName = AllSongs[i].Name, AddButtonName = AllSongs[i].SongID.ToString() });
                 }
                 else
                 {
-                    ListBox.Add(new SongItem { ImageSource = AllSongs[i].SongCoverFilepath, SongName = AllSongs[i].Name, AddButtonName = AllSongs[i].songID.ToString() });
+                    ListBox.Add(new SongItem { ImageSource = AllSongs[i].SongCover.ToString(), SongName = AllSongs[i].Name, AddButtonName = AllSongs[i].SongID.ToString() });
                 }
 
             }
@@ -134,7 +134,7 @@ namespace MusicManagerMultiplicity.Classes
 
             for (int i = 0; i < AllSongs.Count; i++)
             {
-                if (AllSongs[i].songID == id)
+                if (AllSongs[i].SongID.ToString() == id.ToString())
                 {
                     return AllSongs[i];
                 }
