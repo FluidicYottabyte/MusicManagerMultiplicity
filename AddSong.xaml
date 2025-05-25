@@ -87,7 +87,24 @@
                     </Image.Effect>
                 </Image>
 
+                
                 <TextBlock TextWrapping="Wrap" FontSize="35" HorizontalAlignment="Center" TextAlignment="Center" VerticalAlignment="Center">Drag &amp; Drop Files Here</TextBlock>
+
+                <Grid VerticalAlignment="Bottom">
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="*"/>
+                        <ColumnDefinition Width="*"/>
+                    </Grid.ColumnDefinitions>
+
+                    <Grid.RowDefinitions>
+                        <RowDefinition Height="*"/>
+                    </Grid.RowDefinitions>
+                    
+                    <Button HorizontalAlignment="Stretch" Grid.Column="0" Margin="5" Click="CloseAddSongWindow">Done</Button>
+                    <Button HorizontalAlignment="Stretch" Margin="5" Grid.Column="1" Click="CancelAllSongCreation">Cancel</Button>
+                </Grid>
+                    
+            
             </StackPanel>
 
             <Grid VerticalAlignment="Stretch" Grid.Column="0">

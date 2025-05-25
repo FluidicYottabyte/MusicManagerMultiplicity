@@ -23,14 +23,17 @@ namespace MusicManagerMultiplicity
 
         AlbumListManager AlbumList;
 
+        SongLibrary SongLibraryManager;
+
         private bool IsSongSelected = false;
 
-        public AddSong(ArtistListManager _ArtistLibrary, AlbumListManager _AlbumList)
+        public AddSong(ArtistListManager _ArtistLibrary, AlbumListManager _AlbumList, SongLibrary _SongLibraryManager)
         {
             InitializeComponent();
 
             ArtistLibrary = _ArtistLibrary;
             AlbumList = _AlbumList;
+            SongLibraryManager = _SongLibraryManager;
 
             Artists = new ObservableCollection<ArtistItem>();
 
@@ -352,6 +355,17 @@ namespace MusicManagerMultiplicity
 
             currentSong.Name = newText;
 
+        }
+
+        private void CloseAddSongWindow(object sender, RoutedEventArgs e)
+        {
+            SongsToLoad.ForEach(x => SongLibraryManager.AddSongtoLibrary(x));
+            Close();
+        }
+
+        private void CancelAllSongCreation(object sender, RoutedEventArgs e)
+        {
+            Close();
         }
     }
 }

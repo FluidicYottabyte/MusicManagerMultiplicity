@@ -10,7 +10,7 @@ using static System.Runtime.InteropServices.JavaScript.JSType;
 
 namespace MusicManagerMultiplicity.Classes
 {
-    internal class PlaylistLibrary
+    public class PlaylistLibrary
     {
         public List<Playlist> AllPlaylists = new List<Playlist>();
         private string PlaylistJsonFolder;
@@ -18,7 +18,7 @@ namespace MusicManagerMultiplicity.Classes
         private static string localAppData = Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData);
         private static string appDataFolder = Path.Combine(localAppData, "MusicManagerMultiplicity");
 
-        internal PlaylistLibrary()
+        public PlaylistLibrary()
         {
             //Make sure there is such a directory for the app
             if (!Directory.Exists(appDataFolder))

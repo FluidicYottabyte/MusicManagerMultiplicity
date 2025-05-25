@@ -2,6 +2,7 @@
 using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
+using System.Diagnostics;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
@@ -21,7 +22,8 @@ namespace MusicManagerMultiplicity
     /// </summary>
     public partial class CreatePlaylistDialog : Window
     {
-        public ObservableCollection<SongItem> Songs { get; set; }
+        public ObservableCollection<Song> Songs { get; set; }
+        private ObservableCollection<Song> SearchResults { get; set; }
         public SongLibrary MainSongLibrary;
 
         public List<Song> SongsToAdd = new List<Song>();
@@ -33,16 +35,17 @@ namespace MusicManagerMultiplicity
 
             InitializeComponent();
 
-            Songs = new ObservableCollection<SongItem>();
+            Songs = new ObservableCollection<Song>(MainSongLibrary.AllSongs);
 
             LibrarySearchBox.ItemsSource = Songs;
 
-            MainSongLibrary.CreateSongUI(Songs);
         }
 
         private void AddSelectedSong(object sender, RoutedEventArgs e)
         {
             if (sender == null) { return; }
+
+            Trace.WriteLine("Attempting to add song to playlist, sender is not null");
 
             if (((Button)sender).Tag == null) { return; }
 

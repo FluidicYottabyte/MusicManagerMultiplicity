@@ -7,7 +7,7 @@ using System.Windows.Controls;
 
 namespace MusicManagerMultiplicity.Classes
 {
-    internal class Playlist() //Playlist objects are ordered lists of songs.
+    public class Playlist() //Playlist objects are ordered lists of songs.
     {
         public List<Song> Songs { get; set; }
         public string Name { get; set; }

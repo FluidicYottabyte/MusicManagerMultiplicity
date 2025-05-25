@@ -126,7 +126,7 @@ namespace MusicManagerMultiplicity
 
         private void AddNewSong(object sender, RoutedEventArgs e)
         {
-            AddSong addSongWindow = new AddSong(artistManager, albumManager);
+            AddSong addSongWindow = new AddSong(artistManager, albumManager, songLibrary);
             addSongWindow.Show();
         }
     }

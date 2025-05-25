@@ -41,7 +41,7 @@ namespace MusicManagerMultiplicity.Classes
             string[] files =
                 Directory.GetFiles(SongJsonFolder, "*ProfileHandler.cs", SearchOption.TopDirectoryOnly);
 
-            //On creation of library, decode all json playlist objects
+            //On creation of library, decode all json song objects
 
             for (int i = 0; files != null && i < files.Length; i++)
             {
@@ -63,6 +63,15 @@ namespace MusicManagerMultiplicity.Classes
 
             AllSongs.OrderBy(item => item.Name).ToList();
             //Impliment background task to do the loading, and sort the list alphabetically in order to allow a more efficient sort
+        }
+
+        public void AddSongtoLibrary(Song songtoadd)
+        {
+            AllSongs.Add(songtoadd);
+            AllSongs.OrderBy(item => item.Name).ToList();
+
+            Trace.WriteLine(songtoadd.Name + " Added to song library");
+
         }
 
         public List<Song> BinarySearchMultiple(string name)
