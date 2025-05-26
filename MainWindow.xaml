@@ -36,7 +36,9 @@
                     </Style>
                 </Slider.Resources>
             </Slider>
-            
+
+            <TextBlock Text="{Binding SongProgressNumbers, UpdateSourceTrigger=PropertyChanged}" FontStyle="Italic" Name="ProgressNumbers"/>
+
         </StackPanel>
         
         <Grid x:Name="PlayingInfo"  Margin="0">

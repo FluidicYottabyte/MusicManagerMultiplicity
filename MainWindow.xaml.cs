@@ -44,6 +44,7 @@ namespace MusicManagerMultiplicity
 
         private string playingSongText = "No song playing...";
         private string playingSongArtists = "";
+        private string songProgressNumbers = "0:00 / 0:00";
 
         public string PlayingSongText
         {
@@ -71,6 +72,19 @@ namespace MusicManagerMultiplicity
             }
         }
 
+        public string SongProgressNumbers
+        {
+            get => songProgressNumbers;
+            set
+            {
+                if (songProgressNumbers != value)
+                {
+                    songProgressNumbers = value;
+                    OnPropertyChanged(nameof(SongProgressNumbers));
+                }
+            }
+        }
+
         public event PropertyChangedEventHandler PropertyChanged;
 
         protected void OnPropertyChanged(string propertyName)
@@ -87,7 +101,7 @@ namespace MusicManagerMultiplicity
 
             this.DataContext = this;
 
-            playerManager = new PlayerManager(System.Windows.Application.Current.Dispatcher);
+            playerManager = new PlayerManager(System.Windows.Application.Current.Dispatcher, SongProgressNumbers);
 
             Playlists = new ObservableCollection<PlaylistItem>();
 
@@ -100,6 +114,8 @@ namespace MusicManagerMultiplicity
             playerManager.CurrentSongChanged += song => LoadNewSongInfo(song);
 
             playerManager.ShuffleStatusChanged += value => SetShuffleButtonColor(value);
+
+            playerManager.TimeProgressChanged += value => UpdateTime(value);
 
             if (File.Exists("/Assets/default.png")) //Finish implementing the default image loading
             {
@@ -246,6 +262,11 @@ namespace MusicManagerMultiplicity
         private void Slider_DragCompleted(object sender, System.Windows.Controls.Primitives.DragCompletedEventArgs e)
         {
             playerManager.Slider_DragCompleted(sender, e);
+        }
+
+        private void UpdateTime(string timeUpdateString)
+        {
+            SongProgressNumbers = timeUpdateString;
         }
     }
 }

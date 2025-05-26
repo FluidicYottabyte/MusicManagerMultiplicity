@@ -83,11 +83,37 @@ namespace MusicManagerMultiplicity.Classes
         private bool isDragging = false;
         private bool wasPlaying = false;
 
+        private string _timeProgress;
+
+        public string TimeProgress
+        {
+            get => _timeProgress;
+            set
+            {
+                if (_timeProgress != value)
+                {
+                    _timeProgress = value;
+
+                    // 🔔 Call external method here
+                    OnTimeProgressChanged(TimeProgress);
+                }
+            }
+        }
+
+        public event Action<string> TimeProgressChanged;
+
+        private void OnTimeProgressChanged(string shuffles)
+        {
+            TimeProgressChanged?.Invoke(shuffles);
+        }
+
         private double originalVolume;
 
-        internal PlayerManager(Dispatcher ApplicationDispatcher)
+        internal PlayerManager(Dispatcher ApplicationDispatcher, string TimeProgressItem)
         {
             this.Dispatcher = ApplicationDispatcher;
+
+            TimeProgress = TimeProgressItem;
 
             mediaPlayer.MediaOpened += SongStarted;
 
@@ -108,6 +134,28 @@ namespace MusicManagerMultiplicity.Classes
 
                 slider.Value = currentPosition;
             }
+
+            double seconds = mediaPlayer.Position.TotalSeconds;
+
+            if (seconds == 0 || mediaPlayer.NaturalDuration.HasTimeSpan == false)
+            {
+                TimeProgress = "0:00 / 0:00";
+                return;
+            }
+
+            int secondsPlace = (int)(Math.Round(seconds) % 60);
+            string secondsNumberString = secondsPlace.ToString();
+
+            if (secondsPlace < 10)
+            {
+                secondsNumberString = "0" + secondsPlace.ToString();
+            }
+
+            string Text0 = Math.Floor(seconds / 60).ToString()+":"+secondsNumberString + " / ";
+
+            string Text = mediaPlayer.NaturalDuration.TimeSpan.ToString(@"mm\:ss");
+
+            TimeProgress = Text0 + Text;
         }
 
         public void Slider_ValueChanged(object sender, RoutedPropertyChangedEventArgs<double> e)
