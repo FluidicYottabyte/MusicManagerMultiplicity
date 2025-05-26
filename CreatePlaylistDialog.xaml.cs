@@ -143,6 +143,8 @@ namespace MusicManagerMultiplicity
                     mainWindow1.ReloadPlaylists();
 
                 Close();
+
+                return;
             }
 
             
@@ -178,17 +180,7 @@ namespace MusicManagerMultiplicity
 
                 if (context == null) { return; }
 
-                Trace.WriteLine("Context is not null, adding to songs");
-
-                //int index = SongsToAdd
-                //    .Select((item, idx) => new { item, idx })
-                //    .Where(x => ReferenceEquals(x.item, context))
-                //    .Select(x => x.idx)
-                //    .ElementAtOrDefault(SongsToAdd
-                //        .Where(x => ReferenceEquals(x, context))
-                //        .TakeWhile(x => x != context)
-                //        .Count()); // gets the index of the exact clicked instance
-
+                Trace.WriteLine("Context is not null, removing from songs");
 
                 SongsToAdd.Remove(context);
             }

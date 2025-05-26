@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.ComponentModel;
+using System.Diagnostics;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
@@ -8,6 +9,7 @@ using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Media;
 using System.Windows.Threading;
+using TagLib.Id3v2;
 using TagLib.Matroska;
 using static System.Net.Mime.MediaTypeNames;
 
@@ -22,6 +24,8 @@ namespace MusicManagerMultiplicity.Classes
         private Song _currentsong;
 
         private Slider slider = null;
+
+        public double volume = .3;
 
         public Song CurrentSong
         {
@@ -46,6 +50,14 @@ namespace MusicManagerMultiplicity.Classes
         private void OnCurrentSongChanged(Song newSong)
         {
             CurrentSongChanged?.Invoke(newSong);
+        }
+
+        public void ChangeVolume(double value)
+        {
+            volume = value;
+            mediaPlayer.Volume = value;
+
+            Trace.WriteLine("Volume has been changed");
         }
 
         public event Action<bool> ShuffleStatusChanged;
@@ -244,7 +256,33 @@ namespace MusicManagerMultiplicity.Classes
             CurrentSong = null;
         }
 
-        public void ShufflePlaylist(bool reshuffle = false)
+        public void ClearPlaylist()
+        {
+            mediaPlayer.Stop();
+            CurrentPlaylist = null;
+            Index = 0;
+            Paused = false;
+            Shuffled = false;
+            CurrentSong = null;
+        }
+
+        public void CheckCurrentPlaylistEdited(Playlist EditedPlaylist)
+        {
+            Trace.WriteLine("Checking playlist differences");
+
+            if (CurrentPlaylist == EditedPlaylist)
+            {
+                Trace.WriteLine("Playlists are the same!");
+
+                ClearPlaylist();
+
+                SetPlaylist(EditedPlaylist);
+
+                Play();
+            }
+        }
+
+        public void ShufflePlaylist(bool reshuffle = false, bool skipcurrentsong = false)
         {
 
             if (CurrentPlaylist == null)
@@ -260,6 +298,11 @@ namespace MusicManagerMultiplicity.Classes
 
             Shuffled = true;
             CurrentPlaylist.ShuffledSongs = (List<Song>)Shuffle.ShuffleObject(CurrentPlaylist.PlaylistSongs);
+
+            if (skipcurrentsong)
+            {
+                return;
+            }
             Index = CurrentPlaylist.ShuffledSongs.FindIndex(song => song == CurrentSong);
 
 
@@ -298,7 +341,7 @@ namespace MusicManagerMultiplicity.Classes
                     Index = 0;
                     if (Shuffled == true)
                     {
-                        ShufflePlaylist(true); //Reshuffle playlist when the playlist loops
+                        //ShufflePlaylist(true, true); //Reshuffle playlist when the playlist loops
 
                     }
                 }

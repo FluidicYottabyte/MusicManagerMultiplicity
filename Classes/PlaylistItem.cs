@@ -11,5 +11,6 @@ namespace MusicManagerMultiplicity.Classes
         public string ImageSource { get; set; }  // Image path
         public string PlaylistName { get; set; } // Display text
         public string PlayButtonName { get; set; } // Button name
+        public Playlist Playlist { get; set; }
     }
 }

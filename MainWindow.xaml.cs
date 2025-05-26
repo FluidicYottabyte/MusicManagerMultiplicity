@@ -185,7 +185,16 @@ namespace MusicManagerMultiplicity
 
         private void EditSelectedPlaylist(object sender, RoutedEventArgs e)
         {
-            throw new NotImplementedException();
+            if (sender is Button btn)
+            {
+                PlaylistItem context = (PlaylistItem)btn.DataContext;
+
+                if (playlistLibrary == null) { return; }
+
+                CreatePlaylistDialog playlistEdit = new CreatePlaylistDialog(songLibrary, playlistLibrary, context.Playlist);
+                bool? result = playlistEdit.ShowDialog(); // This blocks until window is closed
+                playerManager.CheckCurrentPlaylistEdited(context.Playlist);
+            }
         }
 
         private void CreateNewPlaylist(object sender, RoutedEventArgs e)
@@ -252,6 +261,10 @@ namespace MusicManagerMultiplicity
             base.OnClosed(e);
 
             playerManager.OnClosed();
+
+            songLibrary.SaveSongs();
+            playlistLibrary.SavePlaylists();
+            artistManager.SaveArtists();
         }
 
         private void Slider_DragStarted(object sender, System.Windows.Controls.Primitives.DragStartedEventArgs e)
@@ -267,6 +280,23 @@ namespace MusicManagerMultiplicity
         private void UpdateTime(string timeUpdateString)
         {
             SongProgressNumbers = timeUpdateString;
+        }
+
+        private void VolumePositionChanged(object sender, RoutedPropertyChangedEventArgs<double> e)
+        {
+            Trace.WriteLine("Changing volume");
+
+            if (sender == null) { return; }
+
+            if (playerManager == null) { return; }
+
+            if (VolumeSlider == null) { return; }
+
+            Trace.WriteLine("Okay to change volume to: " + VolumeSlider.Value);
+
+
+
+            playerManager.ChangeVolume((VolumeSlider.Value));
         }
     }
 }

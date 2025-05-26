@@ -29,6 +29,11 @@ namespace MusicManagerMultiplicity
 
         private bool IsSongSelected = false;
 
+        private static string localAppData = Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData);
+        private static string appDataFolder = Path.Combine(localAppData, "MusicManagerMultiplicity");
+
+        private string SongFileFolder = Path.Combine(appDataFolder, "Songs");
+
         public AddSong(ArtistListManager _ArtistLibrary, AlbumListManager _AlbumList, SongLibrary _SongLibraryManager)
         {
             InitializeComponent();
@@ -48,6 +53,12 @@ namespace MusicManagerMultiplicity
             ArtistSearchBox.IsTextSearchEnabled = false;
 
             ArtistSearchBox.ItemsSource = ArtistLibrary.getArtistListAsStrings();
+
+            if (!Directory.Exists(SongFileFolder))
+            {
+                Directory.CreateDirectory(SongFileFolder); // Creates folder if it doesn't exist
+
+            }
         }
 
         private void ImagePanel_Drop(object sender, DragEventArgs e)
@@ -62,6 +73,8 @@ namespace MusicManagerMultiplicity
                 // handling code you have defined.
                 // HandleFileOpen(files[0]);
                 bool FiletypeErrorRaised = false;
+
+
 
                 foreach (var file in files)
                 {
@@ -91,7 +104,14 @@ namespace MusicManagerMultiplicity
                         continue;
                     }
 
-                    Song tempSong = new Song(file);
+
+                    
+
+                    File.Copy(file, SongFileFolder+"/"+Path.GetFileName(file), overwrite: true);
+
+                    string newfile = SongFileFolder + "/" + Path.GetFileName(file);
+
+                    Song tempSong = new Song(newfile);
                     tempSong.ParseRelevantData(AlbumList, ArtistLibrary);
 
                     AddSongToLoad(tempSong); //Make sure this works because it kinda makes everything

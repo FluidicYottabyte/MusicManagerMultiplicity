@@ -27,6 +27,7 @@ namespace MusicManagerMultiplicity.Classes
             }
 
             SongFileFolder = Path.Combine(appDataFolder, "Songs");
+            //Directory.CreateDirectory(SongFileFolder); // Creates folder if it doesn't exist
             SongJsonFolder = Path.Combine(appDataFolder, "SongClasses");
 
             if (!Directory.Exists(SongJsonFolder))
@@ -39,9 +40,11 @@ namespace MusicManagerMultiplicity.Classes
             Trace.WriteLine("Song folder is located at: " + SongJsonFolder);
 
             string[] files =
-                Directory.GetFiles(SongJsonFolder, "*ProfileHandler.cs", SearchOption.TopDirectoryOnly);
+                Directory.GetFiles(SongJsonFolder);
 
             //On creation of library, decode all json song objects
+
+            Trace.WriteLine("There are currently "+files.Length.ToString()+" files found");
 
             foreach (string file in files)
             {
@@ -152,7 +155,26 @@ namespace MusicManagerMultiplicity.Classes
             //creating new ones as needed, and deleting those that are nonexistent
             //This will be run at the beginning of each startup
         }
+
+        public void SaveSongs()
+        {
+            Trace.WriteLine("Saving songs");
+
+            foreach (Song sng in AllSongs)     
+            {
+                Trace.WriteLine("Attempting save for " + sng.Name);
+
+                
+
+
+                JsonHelper.SaveSongToJson(sng);
+
+                Trace.WriteLine("Saved song "+ sng.Name);
+            }
+        }
     }
+
+
 
     public class SongNameComparer : IComparer<Song>
     {

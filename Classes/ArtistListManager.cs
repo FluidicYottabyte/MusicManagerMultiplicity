@@ -65,5 +65,13 @@ namespace MusicManagerMultiplicity.Classes
 
             return null;
         }
+
+        public void SaveArtists()
+        {
+            foreach (Artist arts in UserArtists)
+            {
+                JsonHelper.SaveArtistToJson(arts);
+            }
+        }
     }
 }

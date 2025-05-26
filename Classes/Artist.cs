@@ -24,6 +24,9 @@ namespace MusicManagerMultiplicity.Classes
             ArtistID = Guid.NewGuid();
         }
 
+        public Artist() { }
+
+
         public override string ToString()
         {
             return ArtistName;

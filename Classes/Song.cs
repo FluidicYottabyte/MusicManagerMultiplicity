@@ -10,6 +10,7 @@ using System.Windows.Media.Imaging;
 using System.ComponentModel;
 using System.Xml.Linq;
 using static System.Runtime.InteropServices.JavaScript.JSType;
+using System.Text.Json.Serialization;
 
 namespace MusicManagerMultiplicity.Classes
 {
@@ -34,7 +35,12 @@ namespace MusicManagerMultiplicity.Classes
         }
         public List<Artist> Artist = new List<Artist>();
         public Album Album { get; set; }
+
+        [JsonIgnore]
         public BitmapFrame SongCover { get; set; }
+
+        public string SongCoverPath { get; set; }
+
 
         public Guid SongID { get; private set; }
 
@@ -42,6 +48,7 @@ namespace MusicManagerMultiplicity.Classes
 
         public string ArtistListString { get; set; }
 
+        [JsonIgnore]
         private DataExractor extractor = new DataExractor();
 
         // Constructor requiring only name and file location
@@ -57,6 +64,13 @@ namespace MusicManagerMultiplicity.Classes
             
         }
 
+        public Song()
+        {
+            SongID = Guid.NewGuid();
+            StringSongID = SongID.ToString();
+        }
+
+
         public Song(string fileLocation)
         {
             FileLocation = fileLocation;
@@ -68,7 +82,6 @@ namespace MusicManagerMultiplicity.Classes
         }
 
 
-        
         public event PropertyChangedEventHandler? PropertyChanged;
 
         protected void OnPropertyChanged(string propertyName)
@@ -182,6 +195,16 @@ namespace MusicManagerMultiplicity.Classes
         {
             return Name;
         }
+
+        public static void SaveCoverToFile(BitmapFrame image, string imagePath)
+        {
+            BitmapEncoder encoder = new PngBitmapEncoder();
+            encoder.Frames.Add(image);
+
+            using FileStream stream = new FileStream(imagePath, FileMode.Create);
+            encoder.Save(stream);
+        }
+
     }
 
 }

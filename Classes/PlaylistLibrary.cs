@@ -63,17 +63,17 @@ namespace MusicManagerMultiplicity.Classes
         {
             ListBox.Clear();
 
-            for (int i = 0; i < AllPlaylists.Count; i++) 
+            foreach (Playlist list in AllPlaylists) 
             {
-                if (AllPlaylists[i] == null) { return; }
+                if (list == null) { return; }
 
-                if (AllPlaylists[i].ImageEnabled)
+                if (list.ImageEnabled)
                 {
-                    ListBox.Add(new PlaylistItem { ImageSource = AllPlaylists[i].ImageFilepath, PlaylistName = AllPlaylists[i].Name, PlayButtonName = AllPlaylists[i].playlistID.ToString() });
+                    ListBox.Add(new PlaylistItem { ImageSource = list.ImageFilepath, PlaylistName = list.Name, PlayButtonName = list.playlistID.ToString(), Playlist = list });
                 }
                 else
                 {
-                    ListBox.Add(new PlaylistItem { ImageSource = "", PlaylistName = AllPlaylists[i].Name, PlayButtonName = AllPlaylists[i].playlistID.ToString() });
+                    ListBox.Add(new PlaylistItem { ImageSource = "", PlaylistName = list.Name, PlayButtonName = list.playlistID.ToString(), Playlist = list });
                 }
                 
             }
@@ -89,11 +89,11 @@ namespace MusicManagerMultiplicity.Classes
 
         public Playlist FindPlaylistByID(Guid id)
         {
-            for (int i = 0; i < AllPlaylists.Count; i++)
+            foreach (Playlist list in AllPlaylists)
             {
-                if (AllPlaylists[i].playlistID == id)
+                if (list.playlistID == id)
                 {
-                    return AllPlaylists[i];
+                    return list;
                 }
             }
 
@@ -102,15 +102,23 @@ namespace MusicManagerMultiplicity.Classes
 
         public Playlist FindPlaylistByStringID(string id)
         {
-            for (int i = 0; i < AllPlaylists.Count; i++)
+            foreach (Playlist list in AllPlaylists)
             {
-                if (AllPlaylists[i].playlistID.ToString() == id)
+                if (list.playlistID.ToString() == id)
                 {
-                    return AllPlaylists[i];
+                    return list;
                 }
             }
 
             return null;
+        }
+
+        public void SavePlaylists()
+        {
+            foreach (Playlist plist in AllPlaylists)
+            {
+                JsonHelper.SavePlaylistToJson(plist);
+            }
         }
 
     }
