@@ -7,6 +7,7 @@ using System.Windows.Controls;
 using System.Windows.Media;
 using System.Windows.Media.Imaging;
 using System.IO;
+using TagLib.Ape;
 
 namespace MusicManagerMultiplicity
 {
@@ -61,7 +62,7 @@ namespace MusicManagerMultiplicity
             }
         }
 
-        private void ImagePanel_Drop(object sender, DragEventArgs e)
+        private async void ImagePanel_Drop(object sender, DragEventArgs e)
         {
 
             if (e.Data.GetDataPresent(DataFormats.FileDrop))
@@ -74,48 +75,71 @@ namespace MusicManagerMultiplicity
                 // HandleFileOpen(files[0]);
                 bool FiletypeErrorRaised = false;
 
+                LoadingWindow loadingWindow = new LoadingWindow();
 
+                ProgressBar progressBar = loadingWindow.progressBar;
 
-                foreach (var file in files)
+                loadingWindow.Show();
+                progressBar.Minimum = 0;
+                progressBar.Maximum = files.Length;
+                progressBar.Value = 0;
+
+                await Task.Run(() =>
                 {
-                    Trace.WriteLine(file);
+                    for (int i = 0; i < files.Length; i++)
+                    {
+                        Trace.WriteLine(files[i]);
 
-                    var strings = new List<string> { 
+                        var strings = new List<string> {
                         "MP3", "WAV", "OGG", "FLAC",
                         "AIFF"
-                    }; //supported file formats
-                   
-                    bool contains = strings.Contains(file.Split(".").Last().ToUpper(), StringComparer.OrdinalIgnoreCase);
+                        }; //supported file formats
 
-                    if (!contains)
-                    {
-                        if (FiletypeErrorRaised == true) { continue; }
+                        bool contains = strings.Contains(files[i].Split(".").Last().ToUpper(), StringComparer.OrdinalIgnoreCase);
 
-                        string messageBoxText = "One or more files are of a filetype not recognized. These files have been skipped. First instance of unsupported filetype is: "+Path.GetFileName(file);
-                        string caption = "Error adding songs";
-                        MessageBoxButton button = MessageBoxButton.OK;
-                        MessageBoxImage icon = MessageBoxImage.Warning;
-                        MessageBoxResult result;
+                        if (!contains)
+                        {
+                            if (FiletypeErrorRaised == true) { continue; }
 
-                        result = MessageBox.Show(messageBoxText, caption, button, icon, MessageBoxResult.Yes);
+                            string messageBoxText = "One or more files are of a filetype not recognized. These files have been skipped. First instance of unsupported filetype is: " + Path.GetFileName(files[i]);
+                            string caption = "Error adding songs";
+                            MessageBoxButton button = MessageBoxButton.OK;
+                            MessageBoxImage icon = MessageBoxImage.Warning;
+                            MessageBoxResult result;
 
-                        FiletypeErrorRaised = true;
+                            result = MessageBox.Show(messageBoxText, caption, button, icon, MessageBoxResult.Yes);
 
-                        continue;
+                            FiletypeErrorRaised = true;
+
+                            continue;
+                        }
+
+
+
+
+                        System.IO.File.Copy(files[i], SongFileFolder + "/" + Path.GetFileName(files[i]), overwrite: true);
+
+                        string newfile = SongFileFolder + "/" + Path.GetFileName(files[i]);
+
+                        Song tempSong = new Song(newfile);
+                        tempSong.ParseRelevantData(AlbumList, ArtistLibrary);
+
+
+                        Dispatcher.Invoke(() =>
+                        {
+                            AddSongToLoad(tempSong); //Make sure this works because it kinda makes everything
+                        });
+                         
+
+                        // Update the progress bar on the UI thread
+                        Dispatcher.Invoke(() =>
+                        {
+                            progressBar.Value = i + 1;
+                        });
                     }
+                });
 
-
-                    
-
-                    File.Copy(file, SongFileFolder+"/"+Path.GetFileName(file), overwrite: true);
-
-                    string newfile = SongFileFolder + "/" + Path.GetFileName(file);
-
-                    Song tempSong = new Song(newfile);
-                    tempSong.ParseRelevantData(AlbumList, ArtistLibrary);
-
-                    AddSongToLoad(tempSong); //Make sure this works because it kinda makes everything
-                }
+                loadingWindow.Close();
 
                 Trace.WriteLine("AddSong.xaml.cs thinks main artists are:");
 
@@ -234,9 +258,9 @@ namespace MusicManagerMultiplicity
             }
 
 
-            if (foundSongInList.SongCover != null)
+            if (foundSongInList.SongCoverImage != null)
             {
-                AlbumArt.Source = foundSongInList.SongCover;
+                AlbumArt.Source = foundSongInList.SongCoverImage;
             }
             else
             {

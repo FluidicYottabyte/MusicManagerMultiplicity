@@ -332,12 +332,22 @@ namespace MusicManagerMultiplicity.Classes
             }
             else if (CurrentSong != null && CurrentPlaylist != null) 
             {
-                if (Index <= (CurrentPlaylist.PlaylistSongs.Count - 2))
+                if (Index < (CurrentPlaylist.PlaylistSongs.Count - 1))
                 {
+                    Trace.WriteLine("Increasing index");
                     Index += 1;
+                } 
+                else if(CurrentPlaylist.PlaylistSongs.Count == 1)
+                {
+                    Trace.WriteLine("Index set to zero");
+                    Index = 0;
+                    Trace.WriteLine("The song is now: "+ CurrentPlaylist.PlaylistSongs[Index].Name);
+                    
                 }
                 else
                 {
+                    Trace.WriteLine("Index set to zero");
+
                     Index = 0;
                     if (Shuffled == true)
                     {
@@ -345,6 +355,8 @@ namespace MusicManagerMultiplicity.Classes
 
                     }
                 }
+
+                mediaPlayer.Close();
 
                 if (Shuffled)
                 {
@@ -386,6 +398,12 @@ namespace MusicManagerMultiplicity.Classes
                 }
                 else
                 {
+                    Trace.WriteLine("All songs in playlist:");
+                    foreach (Song song in CurrentPlaylist.PlaylistSongs)
+                    {
+                        Trace.WriteLine(song.Name);
+                    }
+                   
                     mediaPlayer.Open(new Uri(CurrentPlaylist.PlaylistSongs[Index].FileLocation, UriKind.RelativeOrAbsolute));
                     CurrentSong = CurrentPlaylist.PlaylistSongs[Index];
                 }

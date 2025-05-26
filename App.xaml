@@ -75,7 +75,7 @@
         <Style TargetType="Border" x:Key="ButtonCorners">
             <Setter Property="BorderBrush" Value="{StaticResource AccentTertiary}"/>
             <Setter Property="BorderThickness" Value="{StaticResource bThin}"/>
-            <Setter Property="CornerRadius" Value="{StaticResource sRadius}"/>
+            <Setter Property="CornerRadius" Value="{StaticResource bRadius}"/>
         </Style>
 
         <Style TargetType="Border" x:Key="HighlyRoundedCorners">

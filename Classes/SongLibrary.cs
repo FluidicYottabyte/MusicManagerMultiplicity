@@ -148,6 +148,21 @@ namespace MusicManagerMultiplicity.Classes
         
         }
 
+        public Song FindSongByStringID(string id)
+        {
+
+            for (int i = 0; i < AllSongs.Count; i++)
+            {
+                if (AllSongs[i].StringSongID == id)
+                {
+                    return AllSongs[i];
+                }
+            }
+
+            return null;
+
+        }
+
         public void CheckSongsForUpdates()
         {
             throw new NotImplementedException(); 

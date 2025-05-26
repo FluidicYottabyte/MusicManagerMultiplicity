@@ -32,8 +32,9 @@ namespace MusicManagerMultiplicity
         public ObservableCollection<PlaylistItem> Playlists { get; set; }
 
         private PlayerManager playerManager;
-        private PlaylistLibrary playlistLibrary = new PlaylistLibrary();
         private SongLibrary songLibrary = new SongLibrary();
+        private PlaylistLibrary playlistLibrary;
+        
 
         private ArtistListManager artistManager = new ArtistListManager();
         private AlbumListManager albumManager = new AlbumListManager();
@@ -96,6 +97,8 @@ namespace MusicManagerMultiplicity
         {
             artistManager.regenerateArtistList(songLibrary); //Don't leave this forever, import the artist list once you create the json encode/decode for it
             albumManager.regenerateAlbumList(songLibrary); //This too, these will both cause lag on each startup with larger libraries
+
+            playlistLibrary = new PlaylistLibrary(songLibrary);
 
             InitializeComponent();
 
@@ -234,7 +237,11 @@ namespace MusicManagerMultiplicity
 
             PlayingSongArtists = "By " + song.ArtistListString;
 
-            AlbumArt.Source = song.SongCover;
+            AlbumArt.Source = song.SongCoverImage;
+
+            Trace.WriteLine("Album art image path is null? " + (song.SongCoverImage == null).ToString());
+
+            Trace.WriteLine("Album art image width is: "+AlbumArt.Width.ToString());
         }
 
         private void SetShuffleButtonColor(bool shuffled)

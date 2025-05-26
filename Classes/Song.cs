@@ -11,6 +11,7 @@ using System.ComponentModel;
 using System.Xml.Linq;
 using static System.Runtime.InteropServices.JavaScript.JSType;
 using System.Text.Json.Serialization;
+using System.Windows.Media;
 
 namespace MusicManagerMultiplicity.Classes
 {
@@ -39,7 +40,24 @@ namespace MusicManagerMultiplicity.Classes
         [JsonIgnore]
         public BitmapFrame SongCover { get; set; }
 
-        public string SongCoverPath { get; set; }
+        [JsonIgnore]
+        private ImageSource songCoverImage;
+        [JsonIgnore]
+        public ImageSource SongCoverImage => songCoverImage;
+
+        private string songCoverPath;
+        public string SongCoverPath { get => songCoverPath; set
+            {
+                if (songCoverPath != value)
+                {
+                    songCoverPath = value;
+                    if (value != null)
+                    {
+                        LoadCoverImageFromPath();
+                    }
+                }
+            }
+        }
 
 
         public Guid SongID { get; private set; }
@@ -51,6 +69,9 @@ namespace MusicManagerMultiplicity.Classes
         [JsonIgnore]
         private DataExractor extractor = new DataExractor();
 
+        private static string localAppData = Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData);
+        private static string appDataFolder = Path.Combine(localAppData, "MusicManagerMultiplicity");
+
         // Constructor requiring only name and file location
         public Song(string name, string fileLocation)
         {
@@ -61,13 +82,15 @@ namespace MusicManagerMultiplicity.Classes
             StringSongID = SongID.ToString();
 
 
-            
+
         }
 
         public Song()
         {
             SongID = Guid.NewGuid();
             StringSongID = SongID.ToString();
+
+
         }
 
 
@@ -77,7 +100,6 @@ namespace MusicManagerMultiplicity.Classes
             SongID = Guid.NewGuid();
 
             StringSongID = SongID.ToString();
-
 
         }
 
@@ -180,7 +202,19 @@ namespace MusicManagerMultiplicity.Classes
 
             if (returnedImage != null)
             {
-                SongCover = returnedImage;
+                string results = SaveSongBitmapAsCover(returnedImage);
+
+                if (results == null)
+                {
+                    SongCover = returnedImage;
+                    SongCoverPath = null;
+                } else
+                {
+                    SongCover = null;
+                    SongCoverPath = results;
+                    LoadCoverImageFromPath();
+                }
+                
             } else
             {
                 //Default song cover
@@ -194,6 +228,41 @@ namespace MusicManagerMultiplicity.Classes
         public override string ToString()
         {
             return Name;
+        }
+
+        public string SaveSongBitmapAsCover(BitmapFrame bitmap)
+        {
+            string CoverPath = Path.Combine(appDataFolder, "Images");
+
+            return JsonHelper.SaveCoverIfUnique(bitmap,CoverPath);
+        }
+
+        public void LoadCoverImageFromPath()
+        {
+            if (!string.IsNullOrEmpty(SongCoverPath) && File.Exists(SongCoverPath))
+            {
+                BitmapImage image = new BitmapImage();
+                image.BeginInit();
+                image.CacheOption = BitmapCacheOption.OnLoad;
+                image.UriSource = new Uri(SongCoverPath, UriKind.Absolute);
+                image.EndInit();
+                image.Freeze();
+
+                songCoverImage = image;
+
+                Trace.WriteLine("Image is null? "+(image == null).ToString());
+                //OnPropertyChanged(nameof(SongCoverImage)); // Raise property changed if needed
+            }
+        }
+
+
+        public string GetSongCoverFromPath()
+        {
+            if (SongCoverPath != null)
+            {
+                return SongCoverPath;
+            }
+            else return null;
         }
 
         public static void SaveCoverToFile(BitmapFrame image, string imagePath)

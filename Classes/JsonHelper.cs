@@ -32,8 +32,19 @@ namespace MusicManagerMultiplicity.Classes
 
         public static void SavePlaylistToJson(Playlist playlistToConvert)
         {
+            string PlaylistFolder = Path.Combine(appDataFolder, "Playlists");
 
-            string filePath = Path.Combine(appDataFolder, "/Playlists/" + playlistToConvert.Name + ".json");
+            if (!Directory.Exists(PlaylistFolder))
+            {
+                Directory.CreateDirectory(PlaylistFolder);
+            }
+
+            string PlaylistName = playlistToConvert.Name + "_" + playlistToConvert.playlistID.ToString();
+
+            string safeName = string.Join("_", PlaylistName.Split(Path.GetInvalidFileNameChars()));
+
+            string filePath = Path.Combine(PlaylistFolder, safeName + ".json");
+
 
             var options = new JsonSerializerOptions { WriteIndented = true };
             string json = JsonSerializer.Serialize(playlistToConvert, options);
@@ -71,9 +82,10 @@ namespace MusicManagerMultiplicity.Classes
                 {
                     Trace.WriteLine("Songcover exists, attempting save");
 
-                    string imagePath = Path.Combine(CoverPath, safeName + ".png");
-                    Song.SaveCoverToFile(songToConvert.SongCover, imagePath);
-                    songToConvert.SongCoverPath = imagePath;
+                    string coverPath = SaveCoverIfUnique(songToConvert.SongCover, CoverPath);
+                    songToConvert.SongCoverPath = coverPath;
+
+                    songToConvert.SongCover = null;
                 }
 
                 string json = JsonSerializer.Serialize(songToConvert, options);
@@ -99,12 +111,12 @@ namespace MusicManagerMultiplicity.Classes
 
             if (File.Exists(createdSong.SongCoverPath))
             {
-                using FileStream stream = new FileStream(createdSong.SongCoverPath, FileMode.Open, FileAccess.Read);
+                //using FileStream stream = new FileStream(createdSong.SongCoverPath, FileMode.Open, FileAccess.Read);
                 
-                BitmapFrame returnedFrame = BitmapFrame.Create(stream, BitmapCreateOptions.PreservePixelFormat, BitmapCacheOption.OnLoad);
+                //BitmapFrame returnedFrame = BitmapFrame.Create(stream, BitmapCreateOptions.PreservePixelFormat, BitmapCacheOption.OnLoad);
                 
 
-                createdSong.SongCover = returnedFrame;
+                //createdSong.SongCover = returnedFrame;
             }
 
             return createdSong;
@@ -130,5 +142,41 @@ namespace MusicManagerMultiplicity.Classes
             string json = File.ReadAllText(filePath);
             return JsonSerializer.Deserialize<Artist>(json);
         }
+
+        public static string GetImageHash(BitmapFrame image)
+        {
+            using MemoryStream ms = new MemoryStream();
+            BitmapEncoder encoder = new PngBitmapEncoder();
+            encoder.Frames.Add(image);
+            encoder.Save(ms);
+
+            using var sha = System.Security.Cryptography.SHA256.Create();
+            byte[] hashBytes = sha.ComputeHash(ms.ToArray());
+            return BitConverter.ToString(hashBytes).Replace("-", "").ToLower(); // filename-friendly
+        }
+
+        public static string SaveCoverIfUnique(BitmapFrame image, string coversFolder)
+        {
+            string hash = GetImageHash(image);
+            string imagePath = Path.Combine(coversFolder, hash + ".png");
+
+            if (!Directory.Exists(coversFolder))
+            {
+                Directory.CreateDirectory(coversFolder);
+            }
+
+            if (!File.Exists(imagePath))
+            {
+                BitmapEncoder encoder = new PngBitmapEncoder();
+                encoder.Frames.Add(image);
+
+                using FileStream stream = new FileStream(imagePath, FileMode.Create);
+                encoder.Save(stream);
+            }
+
+            return imagePath; // store this in your song JSON
+        }
+
+
     }
 }

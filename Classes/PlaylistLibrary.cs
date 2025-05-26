@@ -18,7 +18,7 @@ namespace MusicManagerMultiplicity.Classes
         private static string localAppData = Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData);
         private static string appDataFolder = Path.Combine(localAppData, "MusicManagerMultiplicity");
 
-        public PlaylistLibrary()
+        public PlaylistLibrary(SongLibrary songLibary)
         {
             //Make sure there is such a directory for the app
             if (!Directory.Exists(appDataFolder))
@@ -38,7 +38,7 @@ namespace MusicManagerMultiplicity.Classes
             Trace.WriteLine("Playlist folder is located at: "+PlaylistJsonFolder);
 
             string[] files =
-                Directory.GetFiles(PlaylistJsonFolder, "*ProfileHandler.cs", SearchOption.TopDirectoryOnly);
+                Directory.GetFiles(PlaylistJsonFolder);
 
             //On creation of library, decode all json playlist objects
 
@@ -53,6 +53,24 @@ namespace MusicManagerMultiplicity.Classes
                     Playlist LoadedFile = JsonHelper.LoadPlaylistFromJson(file);
 
                     if (LoadedFile == null) { continue; } //Self explanitory, if you can't understand this why the fuck are you looking at this code
+
+                    List<Song> fixedList = new List<Song>();
+
+                    Trace.WriteLine("Fixing song list...");
+
+                    foreach (Song song in LoadedFile.PlaylistSongs)
+                    {
+                        Song newsong = songLibary.FindSongByStringID(song.StringSongID);
+
+                        fixedList.Add(newsong);
+
+                        Trace.WriteLine("Found and replaced song: " + newsong.Name);
+                    }
+
+                    if (fixedList != null)
+                    {
+                        LoadedFile.SetAllSongs(fixedList);
+                    }
 
                     AllPlaylists.Add(LoadedFile);
                 }

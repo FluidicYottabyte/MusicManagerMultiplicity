@@ -103,7 +103,7 @@
                                     </Grid.ColumnDefinitions>
 
                                     <StackPanel Orientation="Horizontal" Grid.Column="0">
-                                        <Image RenderOptions.BitmapScalingMode="HighQuality" x:Name="PlaylistArt" Width="50" Source="{Binding ImageSource}"/>
+                                        <Image RenderOptions.BitmapScalingMode="HighQuality" x:Name="PlaylistArt" Width="{Binding CoverWidth}" Source="{Binding ImageSource}"/>
                                         <TextBlock Text="{Binding PlaylistName}" Margin="8, 5" FontSize="17" FontFamily="Times New Roman" FontWeight="Bold" VerticalAlignment="Center"/>
                                     </StackPanel>
 
