@@ -1,10 +1,12 @@
 ﻿using MusicManagerMultiplicity.Classes;
 using System.Collections.ObjectModel;
+using System.ComponentModel;
 using System.Diagnostics;
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Media;
 using System.Windows.Media.Imaging;
+using System.IO;
 
 namespace MusicManagerMultiplicity
 {
@@ -59,9 +61,35 @@ namespace MusicManagerMultiplicity
                 // Assuming you have one file that you care about, pass it off to whatever
                 // handling code you have defined.
                 // HandleFileOpen(files[0]);
+                bool FiletypeErrorRaised = false;
+
                 foreach (var file in files)
                 {
                     Trace.WriteLine(file);
+
+                    var strings = new List<string> { 
+                        "MP3", "WAV", "OGG", "FLAC",
+                        "AIFF"
+                    }; //supported file formats
+                   
+                    bool contains = strings.Contains(file.Split(".").Last().ToUpper(), StringComparer.OrdinalIgnoreCase);
+
+                    if (!contains)
+                    {
+                        if (FiletypeErrorRaised == true) { continue; }
+
+                        string messageBoxText = "One or more files are of a filetype not recognized. These files have been skipped. First instance of unsupported filetype is: "+Path.GetFileName(file);
+                        string caption = "Error adding songs";
+                        MessageBoxButton button = MessageBoxButton.OK;
+                        MessageBoxImage icon = MessageBoxImage.Warning;
+                        MessageBoxResult result;
+
+                        result = MessageBox.Show(messageBoxText, caption, button, icon, MessageBoxResult.Yes);
+
+                        FiletypeErrorRaised = true;
+
+                        continue;
+                    }
 
                     Song tempSong = new Song(file);
                     tempSong.ParseRelevantData(AlbumList, ArtistLibrary);

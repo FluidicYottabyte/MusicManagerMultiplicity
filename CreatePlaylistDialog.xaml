@@ -8,8 +8,9 @@
         Title="Create Playlist" Height="400" Width="600">
     <Grid>
         <Grid.ColumnDefinitions>
-            <ColumnDefinition Width="*"/>
-            <ColumnDefinition Width="*"/>
+            <ColumnDefinition Width="9*"/>
+            <ColumnDefinition/>
+            <ColumnDefinition Width="10*"/>
         </Grid.ColumnDefinitions>
 
         <Grid.RowDefinitions>
@@ -17,7 +18,7 @@
             <RowDefinition Height="Auto"/>
         </Grid.RowDefinitions>
 
-        <Grid>
+        <Grid Grid.ColumnSpan="2">
             <Grid.ColumnDefinitions>
                 <ColumnDefinition Width="*"/>
             </Grid.ColumnDefinitions>
@@ -31,13 +32,25 @@
                 <TextBlock Margin="5" FontSize="18" FontWeight="Bold">Edit Playlist</TextBlock>
                 <DockPanel>
                     <Label>Playlist Name:</Label>
-                    <TextBox VerticalContentAlignment="Center" HorizontalAlignment="Stretch" Margin="3,5,5,5">Enter Playlist Name</TextBox>
+                    <TextBox VerticalContentAlignment="Center" HorizontalAlignment="Stretch" Margin="3,5,5,5" Name="PlaylistNameBox"></TextBox>
                 </DockPanel>
-                <StackPanel Orientation="Horizontal" HorizontalAlignment="Center" ScrollViewer.HorizontalScrollBarVisibility="Disabled">
+                <Grid>
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="*"/>
+                        <ColumnDefinition Width="*"/>
+                        <ColumnDefinition Width="*"/>
+                    </Grid.ColumnDefinitions>
+
+                    <Grid.RowDefinitions>
+                        <RowDefinition Height="*"/>
+                    </Grid.RowDefinitions>
+
                     <RibbonCheckBox Label="Enable Image"/>
-                    <Button Margin="3,5" Width="Auto">Select Image</Button>
-                    <TextBlock VerticalAlignment="Center" Margin="5,2" TextWrapping="Wrap" Width="Auto" Text="Impliment me!"/>
-                </StackPanel>
+                    <Button Grid.Column="1" Margin="3,5" Width="Auto">Select Image</Button>
+                    <TextBlock Grid.Column="2" VerticalAlignment="Center" Margin="5,2" TextWrapping="Wrap" Width="Auto" Text="&lt;- Neither of these work yet!"/>
+
+                </Grid>
+
             </StackPanel>
 
             <Grid Grid.Row="1" VerticalAlignment="Stretch">
@@ -51,8 +64,13 @@
                 </Grid.RowDefinitions>
 
                 <TextBlock Margin="5" FontSize="14" FontWeight="Bold">Playlist Songs</TextBlock>
-                
-                <ListBox Grid.Row="1" VerticalAlignment="Stretch" Margin="3,5,5,5">
+
+                <ListBox Grid.Row="1" VerticalAlignment="Stretch" Margin="3,5,5,5" Name="PlaylistSongsToAddBox">
+                    <ListBox.ItemContainerStyle>
+                        <Style TargetType="ListBoxItem">
+                            <Setter Property="HorizontalContentAlignment" Value="Stretch"/>
+                        </Style>
+                    </ListBox.ItemContainerStyle>
                     <ListBox.ItemTemplate>
                         <DataTemplate>
                             <Grid>
@@ -66,9 +84,12 @@
                                 </Grid.ColumnDefinitions>
 
                                 <StackPanel Orientation="Horizontal" Grid.Column="0">
-                                    <Image x:Name="PlaylistArt" Width="25" Source="{Binding SongCover}"/>
-                                    <Button Tag="{Binding StrongSongID}" HorizontalAlignment="Right" Click="AddSelectedSong" Margin="5,0">Remove</Button>
-                                    <TextBlock Text="{Binding Name}" Margin="8, 5" FontSize="17" FontFamily="Times New Roman" FontWeight="Bold" VerticalAlignment="Center"/>
+                                    <Button Tag="{Binding Song.StringSongID}" HorizontalAlignment="Right" Click="RemoveSelectedSong" Margin="7,5">Remove</Button>
+                                    <Image RenderOptions.BitmapScalingMode="HighQuality" x:Name="PlaylistArt" Width="25" Margin ="3" Source="{Binding Song.SongCover}"/>
+                                    <StackPanel>
+                                        <TextBlock Text="{Binding Song.Name}" Margin="5,1,5,1" FontSize="17" FontFamily="Times New Roman" FontWeight="Bold" VerticalAlignment="Center"/>
+                                        <TextBlock Text="{Binding Song.ArtistListString}" Margin="5,1,5,1" FontSize="10" FontFamily="Times New Roman" FontWeight="Bold" VerticalAlignment="Center"/>
+                                    </StackPanel>
                                 </StackPanel>
                             </Grid>
                         </DataTemplate>
@@ -78,23 +99,23 @@
         </Grid>
 
 
-        <StackPanel Orientation="Horizontal" Grid.Row="1" Margin="5">
+        <StackPanel Orientation="Horizontal" Grid.Row="1" Margin="5,5,5,5" Grid.ColumnSpan="2">
             <Button Tag="{Binding CreatePlaylistName}" HorizontalAlignment="Center" Click="CreatePlaylist" Margin="5,0">Done</Button>
             <Button Tag="{Binding CancelButton}" HorizontalAlignment="Center" Click="CancelPlaylistCollection" Margin="5,0">Cancel</Button>
         </StackPanel>
 
 
-        <Grid Grid.Column="1" VerticalAlignment="Stretch">
+        <Grid Grid.Column="2">
             <Grid.RowDefinitions>
                 <RowDefinition Height="Auto"/>
                 <RowDefinition Height="Auto"/>
                 <RowDefinition Height="*"/>
             </Grid.RowDefinitions>
 
-            <TextBlock Margin="5" FontSize="18" FontWeight="Bold">Library</TextBlock>
+            <TextBlock Margin="5" FontSize="18" FontWeight="Bold">Search Library</TextBlock>
 
 
-            <TextBox Grid.Row="1" Margin="3,5">Search Library</TextBox>
+            <TextBox Grid.Row="1" Margin="3,5" TextChanged="UpdateSearch" Name="SearchBox"></TextBox>
 
             <ListBox Grid.Row="2" VerticalAlignment="Stretch" Name="LibrarySearchBox"  Margin="3,5">
                 <ListBox.ItemContainerStyle>
@@ -116,9 +137,13 @@
                             </Grid.ColumnDefinitions>
 
                             <StackPanel Orientation="Horizontal" Grid.Column="0">
-                                <Image x:Name="PlaylistArt" Width="25" Source="{Binding SongCover}"/>
-                                <Button Tag="{Binding StrongSongID}" HorizontalAlignment="Right" Click="AddSelectedSong" Margin="5,0">Add</Button>
-                                <TextBlock Text="{Binding Name}" Margin="8, 5" FontSize="17" FontFamily="Times New Roman" FontWeight="Bold" VerticalAlignment="Center"/>
+                                <Button Tag="{Binding StringSongID}" HorizontalAlignment="Right" Click="AddSelectedSong" Margin="7,5">Add</Button>
+                                <Image RenderOptions.BitmapScalingMode="HighQuality" x:Name="PlaylistArt" Width="25" Margin="3" Source="{Binding SongCover}"/>
+
+                                <StackPanel>
+                                    <TextBlock Text="{Binding Name}" Margin="5,1,5,1" FontSize="17" FontFamily="Times New Roman" FontWeight="Bold" VerticalAlignment="Center"/>
+                                    <TextBlock Text="{Binding ArtistListString}" Margin="5,1,5,1" FontSize="10" FontFamily="Times New Roman" FontWeight="Bold" VerticalAlignment="Center"/>
+                                </StackPanel>
                             </StackPanel>
                         </Grid>
                     </DataTemplate>

@@ -43,15 +43,15 @@ namespace MusicManagerMultiplicity.Classes
 
             //On creation of library, decode all json song objects
 
-            for (int i = 0; files != null && i < files.Length; i++)
+            foreach (string file in files)
             {
-                if (!File.Exists(files[i])) { continue; } //Make sure the file exists!
+                if (!File.Exists(file)) { continue; } //Make sure the file exists!
 
-                if (files[i].Length < 5) { continue; } //Make sure we can actually slice it (otherwise it will throw an error)
+                if (file.Length < 5) { continue; } //Make sure we can actually slice it (otherwise it will throw an error)
 
-                if (files[i].Substring(files[i].Length - 5).ToLower() == ".json") //Is this file a json file?
+                if (file.Substring(file.Length - 5).ToLower() == ".json") //Is this file a json file?
                 {
-                    Song LoadedFile = JsonHelper.LoadSongFromJson(files[i]);
+                    Song LoadedFile = JsonHelper.LoadSongFromJson(file);
 
                     if (LoadedFile == null) { continue; } //Self explanatory, if you can't understand this why the fuck are you looking at this code
 
@@ -67,15 +67,23 @@ namespace MusicManagerMultiplicity.Classes
 
         public void AddSongtoLibrary(Song songtoadd)
         {
-            AllSongs.Add(songtoadd);
-            AllSongs.OrderBy(item => item.Name).ToList();
+            int index = AllSongs.BinarySearch(songtoadd, new SongNameComparer());
 
-            Trace.WriteLine(songtoadd.Name + " Added to song library");
+            if (index < 0)
+                index = ~index; // BinarySearch returns bitwise complement if not found
 
+            AllSongs.Insert(index, songtoadd);
+
+            Trace.WriteLine(songtoadd.Name + " Added to song library at index " + index);
         }
 
         public List<Song> BinarySearchMultiple(string name)
         {
+            Trace.WriteLine("Now searching for songs starting with " + name);
+
+            foreach (var song in AllSongs)
+                Trace.WriteLine(song.Name);
+
             List<Song> results = new List<Song>();
             int left = 0, right = AllSongs.Count - 1;
 
@@ -113,37 +121,21 @@ namespace MusicManagerMultiplicity.Classes
             return results; // Return empty list if no matches
         }
 
-        public void CreateSongUI(ObservableCollection<SongItem> ListBox)
+        public List<Song> PrefixSearch(string prefix)
         {
+            var results = AllSongs
+                .Where(song => song.Name.StartsWith(prefix, StringComparison.OrdinalIgnoreCase))
+                .ToList();
 
-            if (AllSongs == null) { return; }
-
-            for (int i = 0; i < AllSongs.Count; i++)
-            {
-
-                if (AllSongs[i] == null) { continue; }
-
-                if (AllSongs[i].Name == null) { continue; }
-
-                if (AllSongs[i].SongCover == null)
-                {
-                    ListBox.Add(new SongItem { ImageSource = "", SongName = AllSongs[i].Name, AddButtonName = AllSongs[i].SongID.ToString() });
-                }
-                else
-                {
-                    ListBox.Add(new SongItem { ImageSource = AllSongs[i].SongCover.ToString(), SongName = AllSongs[i].Name, AddButtonName = AllSongs[i].SongID.ToString() });
-                }
-
-            }
-
+            return results;
         }
 
-        public Song FindSongByID(int id)
+        public Song FindSongByID(Guid id)
         {
 
             for (int i = 0; i < AllSongs.Count; i++)
             {
-                if (AllSongs[i].SongID.ToString() == id.ToString())
+                if (AllSongs[i].SongID == id)
                 {
                     return AllSongs[i];
                 }
@@ -161,4 +153,13 @@ namespace MusicManagerMultiplicity.Classes
             //This will be run at the beginning of each startup
         }
     }
+
+    public class SongNameComparer : IComparer<Song>
+    {
+        public int Compare(Song x, Song y)
+        {
+            return string.Compare(x?.Name, y?.Name, StringComparison.OrdinalIgnoreCase);
+        }
+    }
+
 }

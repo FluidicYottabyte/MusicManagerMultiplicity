@@ -76,7 +76,7 @@
             </Grid.RowDefinitions>
 
             <StackPanel Name="ImagePanel" Drop="ImagePanel_Drop" AllowDrop="true" Grid.Column="1">
-                <Image VerticalAlignment="Top" HorizontalAlignment="Center" Margin="15" x:Name="AlbumArt" Width="Auto" Source="/Assets/default.png">
+                <Image RenderOptions.BitmapScalingMode="HighQuality" VerticalAlignment="Top" HorizontalAlignment="Center" Margin="15" x:Name="AlbumArt" Width="Auto" Source="/Assets/default.png">
                     <Image.Effect>
                         <DropShadowEffect
                           ShadowDepth="10"

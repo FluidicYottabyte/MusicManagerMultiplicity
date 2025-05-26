@@ -8,8 +8,7 @@
         xmlns:mm="clr-namespace:MusicManagerMultiplicity.Classes"
         mc:Ignorable="d"
         Title="Music Manager" Height="450" Width="800">
-  
-    
+
     <Grid Margin="5">
         <Grid.RowDefinitions>
             <RowDefinition Height="3.5*" />
@@ -26,10 +25,17 @@
                 <Button x:Name="MainPauseButton" Margin="5" Click="PauseCurrentSong">Pause</Button>
                 <Button x:Name="PreviousSongButton" Margin="5" Click="GoToLastSong">Previous</Button>
                 <Button x:Name="NextSongButton" Margin="5" Click="GoToNextSong">Next</Button>
-                <Button x:Name="ShuffleButton" Margin="5" Click="ShufflePlaylist">Next</Button>
+                <Button Background="{DynamicResource MainForeground}" x:Name="ShuffleButton" Margin="5" Click="ShufflePlaylist">Shuffle</Button>
                 
             </StackPanel>
-            <Slider></Slider>
+            <Slider Name="ProgressSlider" ValueChanged="SongPositionChanged" Minimum="0" Maximum="100" TickFrequency=".1" IsMoveToPointEnabled="True">
+                <Slider.Resources>
+                    <Style TargetType="Thumb">
+                        <EventSetter Event="DragStarted" Handler="Slider_DragStarted"/>
+                        <EventSetter Event="DragCompleted" Handler="Slider_DragCompleted"/>
+                    </Style>
+                </Slider.Resources>
+            </Slider>
             
         </StackPanel>
         
@@ -95,7 +101,7 @@
                                     </Grid.ColumnDefinitions>
 
                                     <StackPanel Orientation="Horizontal" Grid.Column="0">
-                                        <Image x:Name="PlaylistArt" Width="50" Source="{Binding ImageSource}"/>
+                                        <Image RenderOptions.BitmapScalingMode="HighQuality" x:Name="PlaylistArt" Width="50" Source="{Binding ImageSource}"/>
                                         <TextBlock Text="{Binding PlaylistName}" Margin="8, 5" FontSize="17" FontFamily="Times New Roman" FontWeight="Bold" VerticalAlignment="Center"/>
                                     </StackPanel>
 
@@ -136,10 +142,10 @@
                     <ColumnDefinition Width="*"/>
                 </Grid.ColumnDefinitions>
 
-                <StackPanel Margin="5,0,0,0">
-                    <Image x:Name="AlbumArt" Width="150" Source="/Assets/default.png"/>
-                    <TextBlock Text="{Binding Text, UpdateSourceTrigger=PropertyChanged}"/>
-                    <TextBlock Text="{Binding Text, UpdateSourceTrigger=PropertyChanged}"/>
+                <StackPanel Margin="0,3,5,0">
+                    <Image RenderOptions.BitmapScalingMode="HighQuality" x:Name="AlbumArt" Width="150" Source="/Assets/default.png"/>
+                    <TextBlock Name="SongTitleText"  Text="{Binding PlayingSongText, UpdateSourceTrigger=PropertyChanged}" Margin="5,2" FontFamily="Arial" FontSize="17" FontWeight="Bold" TextWrapping="Wrap"/>
+                    <TextBlock Name="SongArtistText" Text="{Binding PlayingSongArtists, UpdateSourceTrigger=PropertyChanged}" Margin="5,2" FontFamily="Arial" FontSize="13" FontStyle="Italic" TextWrapping="Wrap"/>
 
                 </StackPanel>
 

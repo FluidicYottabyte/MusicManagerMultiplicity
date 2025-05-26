@@ -12,17 +12,17 @@ namespace MusicManagerMultiplicity.Classes
 
         public static IList<T> ShuffleObject<T>(this IList<T> list)
         {
-            IList<T> list2 = list;
-            int n = list2.Count;
-            while (n > 1)
+
+            var n = list.Count;
+            var result = new List<T>(list); // Create a copy to avoid modifying original list
+
+            for (int i = n - 1; i > 0; i--)
             {
-                n--;
-                int k = rng.Next(n + 1);
-                T value = list2[k];
-                list2[k] = list2[n];
-                list2[n] = value;
+                int j = rng.Next(i + 1); // 0 <= j <= i
+                (result[i], result[j]) = (result[j], result[i]);
             }
-            return list2;
+
+            return result;
         }
     }
 }

@@ -9,6 +9,7 @@ using System.Windows.Controls;
 using System.Windows.Media.Imaging;
 using System.ComponentModel;
 using System.Xml.Linq;
+using static System.Runtime.InteropServices.JavaScript.JSType;
 
 namespace MusicManagerMultiplicity.Classes
 {
@@ -39,6 +40,8 @@ namespace MusicManagerMultiplicity.Classes
 
         public string StringSongID { get; set; }
 
+        public string ArtistListString { get; set; }
+
         private DataExractor extractor = new DataExractor();
 
         // Constructor requiring only name and file location
@@ -49,6 +52,9 @@ namespace MusicManagerMultiplicity.Classes
             SongID = Guid.NewGuid();
 
             StringSongID = SongID.ToString();
+
+
+            
         }
 
         public Song(string fileLocation)
@@ -58,13 +64,29 @@ namespace MusicManagerMultiplicity.Classes
 
             StringSongID = SongID.ToString();
 
+
         }
 
+
+        
         public event PropertyChangedEventHandler? PropertyChanged;
 
         protected void OnPropertyChanged(string propertyName)
         {
             PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
+        }
+
+        private void GenerateArtistString()
+        {
+            foreach (Artist artist in Artist)
+            {
+                ArtistListString += artist.ArtistName + ", ";
+            }
+
+            Trace.WriteLine("Artist string before editing is: " + ArtistListString);
+
+            //Remove extra comma and space
+            ArtistListString = ArtistListString.Substring(0, ArtistListString.Length - 2);
         }
 
         public int CompareTo(Song other)
@@ -152,6 +174,8 @@ namespace MusicManagerMultiplicity.Classes
             }
 
             Trace.WriteLine("Finished parsing all song data for song: "+Name);
+
+            GenerateArtistString();
         }
 
         public override string ToString()

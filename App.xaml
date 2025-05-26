@@ -14,6 +14,8 @@
         <SolidColorBrush x:Key="TertiaryMidrange" Color="#581845" />
         <SolidColorBrush x:Key="AccentTertiary" Color="#3e3426" />
 
+        <SolidColorBrush x:Key="SpecialButtonColor" Color="ForestGreen"/>
+
         <Thickness x:Key="bThin">2</Thickness>
 
         <CornerRadius x:Key="bRadius">5</CornerRadius>
