@@ -8,6 +8,7 @@
 	<SelfContained>true</SelfContained>
 	<RuntimeIdentifier>win-x64</RuntimeIdentifier>
     <UseWPF>true</UseWPF>
+    <ApplicationIcon>Assets\AppIcon.ico</ApplicationIcon>
   </PropertyGroup>
 
   <ItemGroup>
@@ -19,6 +20,7 @@
     <Resource Include="Assets\default.png">
       <CopyToOutputDirectory>Never</CopyToOutputDirectory>
     </Resource>
+    <Content Include="Assets\AppIcon.ico" />
     <Content Include="Assets\TestSong.mp3">
       <CopyToOutputDirectory>Never</CopyToOutputDirectory>
     </Content>
