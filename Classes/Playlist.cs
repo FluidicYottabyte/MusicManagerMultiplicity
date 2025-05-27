@@ -26,6 +26,11 @@ namespace MusicManagerMultiplicity.Classes
             playlistID = Guid.NewGuid();
         }
 
+        public Playlist()
+        {
+
+        }
+
         public void SetName(string name) 
         {
             Name = name;

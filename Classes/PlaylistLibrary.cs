@@ -52,6 +52,8 @@ namespace MusicManagerMultiplicity.Classes
                 {
                     Playlist LoadedFile = JsonHelper.LoadPlaylistFromJson(file);
 
+                    
+
                     if (LoadedFile == null) { continue; } //Self explanitory, if you can't understand this why the fuck are you looking at this code
 
                     List<Song> fixedList = new List<Song>();

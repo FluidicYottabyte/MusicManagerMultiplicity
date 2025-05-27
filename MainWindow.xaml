@@ -7,7 +7,7 @@
         xmlns:sys="clr-namespace:System;assembly=mscorlib"
         xmlns:mm="clr-namespace:MusicManagerMultiplicity.Classes"
         mc:Ignorable="d"
-        Title="Music Manager" Height="450" Width="800">
+        Title="Music Manager" Height="450" Width="800" Background="{StaticResource MainBackground}">
 
     <Grid Margin="5">
         <Grid.RowDefinitions>
@@ -21,11 +21,11 @@
 
         <StackPanel x:Name="UserControls" Grid.Row="2">
             <StackPanel Orientation="Horizontal">
-                <Button x:Name="MainPlayButton" Margin="5" Click="PlayCurrentSong">Play</Button>
-                <Button x:Name="MainPauseButton" Margin="5" Click="PauseCurrentSong">Pause</Button>
-                <Button x:Name="PreviousSongButton" Margin="5" Click="GoToLastSong">Previous</Button>
-                <Button x:Name="NextSongButton" Margin="5" Click="GoToNextSong">Next</Button>
-                <Button Background="{DynamicResource MainForeground}" x:Name="ShuffleButton" Margin="5" Click="ShufflePlaylist">Shuffle</Button>
+                <Button x:Name="MainPlayButton" Margin="5" Click="PlayCurrentSong">▶</Button>
+                <Button x:Name="MainPauseButton" Margin="5" Click="PauseCurrentSong">II</Button>
+                <Button x:Name="PreviousSongButton" Margin="5" Click="GoToLastSong" Content="&lt;&lt;"></Button>
+                <Button x:Name="NextSongButton" Margin="5" Click="GoToNextSong">>></Button>
+                <Button Background="{DynamicResource MainForeground}" x:Name="ShuffleButton" Margin="5" Click="ShufflePlaylist" FontSize="23" Padding="20,1" VerticalAlignment="Center">⤮</Button>
                 
             </StackPanel>
             <Slider Name="ProgressSlider" ValueChanged="SongPositionChanged" Minimum="0" Maximum="100" TickFrequency=".1" IsMoveToPointEnabled="True">
@@ -121,13 +121,49 @@
 
                         </Border>
 
-                    <StackPanel Orientation="Horizontal" Grid.Row="1">
-                        <Border Margin="5" Style="{StaticResource ButtonCorners}">
-                            <Button x:Name="CreatePlaylist" Click="CreateNewPlaylist">Create Playlist</Button>
-                        </Border>
-                        <Border Margin="5" Style="{StaticResource ButtonCorners}">
-                            <Button x:Name="AddSong" Click="AddNewSong">Add Song</Button>
-                        </Border>
+
+                    <StackPanel Orientation="Horizontal" Grid.Row="1" >
+
+                        <Grid>
+                            <Button x:Name="CreatePlaylist" Click="CreateNewPlaylist">
+                                <Button.Template>
+                                    <ControlTemplate TargetType="Button">
+                                        <Grid>
+                                            <!-- Outer border (stroke) -->
+                                            <Border CornerRadius="{DynamicResource bRadiusComplement}" Background="Black"/>
+                                            <!-- Inner content -->
+                                            <Border CornerRadius="{DynamicResource bRadius}" Background="{TemplateBinding Background}" Margin="2" Padding="10">
+                                                <ContentPresenter HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                                            </Border>
+                                            
+                                        </Grid>
+                                    </ControlTemplate>
+                                </Button.Template>
+                                Create Playlist
+                            </Button>
+                        </Grid>
+
+
+
+
+                        <Grid>
+                            <Button x:Name="AddSong" Click="AddNewSong">
+                                <Button.Template>
+                                    <ControlTemplate TargetType="Button">
+                                        <Grid>
+                                            <!-- Outer border (stroke) -->
+                                            <Border CornerRadius="{DynamicResource bRadiusComplement}" Background="Black"/>
+                                            <!-- Inner content -->
+                                            <Border CornerRadius="{DynamicResource bRadius}" Background="{TemplateBinding Background}" Margin="2" Padding="10">
+                                                <ContentPresenter HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                                            </Border>
+
+                                        </Grid>
+                                    </ControlTemplate>
+                                </Button.Template>
+                                Add Song
+                            </Button>
+                        </Grid>
                     </StackPanel>
                 </Grid>
                 

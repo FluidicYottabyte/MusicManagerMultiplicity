@@ -19,6 +19,7 @@
         <Thickness x:Key="bThin">2</Thickness>
 
         <CornerRadius x:Key="bRadius">5</CornerRadius>
+        <CornerRadius x:Key="bRadiusComplement">6</CornerRadius>
         <CornerRadius x:Key="sRadius">2</CornerRadius>
 
 
@@ -47,7 +48,8 @@
         <Style TargetType="Button">
             <Setter Property="Background" Value="{StaticResource MainForeground}"/>
             <Setter Property="BorderThickness" Value="0"/>
-            <Setter Property="Padding" Value="10,5"/>
+            <Setter Property="Padding" Value="20,5"/>
+            <Setter Property="Margin" Value="5,5"/>
 
             <Setter Property="VerticalAlignment" Value="Stretch"/>
             <Setter Property="HorizontalAlignment" Value="Stretch"/>
@@ -61,8 +63,14 @@
 
         <Style TargetType="Border">
             <Setter Property="BorderBrush" Value="{StaticResource AccentTertiary}"/>
+            <!--<Setter Property="BorderThickness" Value="{StaticResource bThin}"/>-->
+            <!--<Setter Property="CornerRadius" Value="{StaticResource bRadius}"/>-->
+        </Style>
+
+        <Style TargetType="Border" x:Key="NoCornersMainBackground">
+            <Setter Property="BorderBrush" Value="{StaticResource AccentTertiary}"/>
             <Setter Property="BorderThickness" Value="{StaticResource bThin}"/>
-            <Setter Property="CornerRadius" Value="{StaticResource bRadius}"/>
+            <Setter Property="CornerRadius" Value="0"/>
         </Style>
 
         <Style TargetType="Border" x:Key="BorderWithMainBackground">

@@ -2,9 +2,11 @@
 
   <PropertyGroup>
     <OutputType>WinExe</OutputType>
-    <TargetFramework>net9.0-windows</TargetFramework>
-    <Nullable>enable</Nullable>
+	<TargetFramework>net9.0-windows</TargetFramework>
+	<PublishSingleFile>true</PublishSingleFile>    <Nullable>enable</Nullable>
     <ImplicitUsings>enable</ImplicitUsings>
+	<SelfContained>true</SelfContained>
+	<RuntimeIdentifier>win-x64</RuntimeIdentifier>
     <UseWPF>true</UseWPF>
   </PropertyGroup>
 
