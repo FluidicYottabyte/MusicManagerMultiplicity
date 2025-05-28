@@ -15,7 +15,7 @@ namespace MusicManagerMultiplicity.Classes
         public string Name { get; set; }
         public string? ImageFilepath { get; set; } //store as filepath to reduce space
         public bool ImageEnabled { get; set; }
-        public Guid playlistID { get; private set; } //Use playlist ID in case playlists have two of the same name. This should be passed to ListBox button as Name.
+        public Guid playlistID { get; set; } //Use playlist ID in case playlists have two of the same name. This should be passed to ListBox button as Name.
 
         public Playlist(List<Song> playlistSongs, string name, string? imageFilepath, bool imageEnabled)
         {
