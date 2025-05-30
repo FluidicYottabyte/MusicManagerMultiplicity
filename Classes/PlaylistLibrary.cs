@@ -64,9 +64,14 @@ namespace MusicManagerMultiplicity.Classes
                     {
                         Song newsong = songLibary.FindSongByStringID(song.StringSongID);
 
+                        if (newsong == null)
+                        {
+                            continue;
+                        }
+
                         fixedList.Add(newsong);
 
-                        Trace.WriteLine("Found and replaced song: " + newsong.Name);
+                        //Trace.WriteLine("Found and replaced song: " + newsong.Name);
                     }
 
                     if (fixedList != null)

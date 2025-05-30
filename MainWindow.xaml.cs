@@ -237,7 +237,12 @@ namespace MusicManagerMultiplicity
 
             PlayingSongArtists = "By " + song.ArtistListString;
 
-            AlbumArt.Source = song.SongCoverImage;
+            var bitmap = new BitmapImage();
+            bitmap.BeginInit();
+            bitmap.CacheOption = BitmapCacheOption.OnDemand; // Avoid full memory load
+            bitmap.UriSource = song.SongCoverImage;
+            bitmap.EndInit();
+            AlbumArt.Source = bitmap;
 
             Trace.WriteLine("Album art image path is null? " + (song.SongCoverImage == null).ToString());
 
@@ -304,6 +309,12 @@ namespace MusicManagerMultiplicity
 
 
             playerManager.ChangeVolume((VolumeSlider.Value));
+        }
+
+        private void OpenUserSettings(object sender, RoutedEventArgs e)
+        {
+            Settings settings = new Settings(songLibrary);
+            settings.Show();
         }
     }
 }

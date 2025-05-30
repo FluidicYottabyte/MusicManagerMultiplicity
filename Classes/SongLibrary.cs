@@ -6,6 +6,10 @@ using System.Threading.Tasks;
 using System.IO;
 using System.Diagnostics;
 using System.Collections.ObjectModel;
+using System.Windows.Controls;
+using System.Windows.Threading;
+using System.Drawing;
+using System.Windows.Media.Imaging;
 
 namespace MusicManagerMultiplicity.Classes
 {
@@ -14,6 +18,8 @@ namespace MusicManagerMultiplicity.Classes
         public List<Song> AllSongs = new List<Song>();
         private string SongJsonFolder;
         private string SongFileFolder;
+
+        private DataExractor extractor = new DataExractor();
 
         private static string localAppData = Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData);
         private static string appDataFolder = Path.Combine(localAppData, "MusicManagerMultiplicity");
@@ -163,9 +169,92 @@ namespace MusicManagerMultiplicity.Classes
 
         }
 
-        public void CheckSongsForUpdates()
+        public async Task CheckSongsForUpdates(Dispatcher Dispatcher)
         {
-            throw new NotImplementedException(); 
+            LoadingWindow loadingWindow = new LoadingWindow();
+
+            ProgressBar progressBar = loadingWindow.progressBar;
+
+            loadingWindow.Show();
+            progressBar.Minimum = 0;
+            progressBar.Maximum = AllSongs.Count;
+            progressBar.Value = 0;
+
+            loadingWindow.StatusText.Text = "Checking image discrepancies...";
+
+            await Task.Run(() =>
+            {
+                
+
+                for (int i = 0; i < AllSongs.Count; i++)
+                {
+
+                    Song song = AllSongs[i];
+
+                    Bitmap returnedImage;
+
+                    if (song.SongCoverPath == null)
+                    {
+                        Trace.WriteLine("Album art path doesn't exist");
+
+                        BitmapFrame holdImage = extractor.GetAlbumArt(song.FileLocation);
+
+                        Bitmap Special = null;
+
+
+                        using (MemoryStream ms = new MemoryStream())
+                        {
+                            // Choose the desired encoder (e.g., PNG for lossless)
+                            BitmapEncoder encoder = new PngBitmapEncoder();
+                            encoder.Frames.Add(holdImage);
+                            encoder.Save(ms);
+
+                            ms.Seek(0, SeekOrigin.Begin);
+                            Special = new Bitmap(ms);
+                        }
+
+                        returnedImage = Special;
+                    }
+                    else
+                    {
+                        returnedImage = new Bitmap(song.SongCoverPath);
+                    }
+
+
+
+
+                    if (returnedImage != null)
+                    {
+
+
+                        returnedImage = Song.StretchToSquare(returnedImage);
+
+                        BitmapFrame convertedImage = Song.ConvertBitmapToBitmapFrame(returnedImage);
+
+
+                        string results = song.SaveSongBitmapAsCover(convertedImage);
+
+                        if (results == null)
+                        {
+                            song.SongCoverPath = null;
+                        }
+                        else
+                        {
+                            song.SongCoverPath = results;
+                            song.LoadCoverImageFromPath();
+                        }
+
+                        Dispatcher.Invoke(() =>
+                    {
+                        progressBar.Value = i + 1;
+                    });
+                    }
+                }
+            });
+
+            loadingWindow.Close();
+
+
             //Iterate through the songs folder, and compare the song classes filepaths to the current set of songs in the folder,
             //creating new ones as needed, and deleting those that are nonexistent
             //This will be run at the beginning of each startup

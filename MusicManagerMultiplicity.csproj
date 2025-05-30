@@ -27,6 +27,7 @@
   </ItemGroup>
 
   <ItemGroup>
+    <PackageReference Include="System.Drawing.Common" Version="9.0.5" />
     <PackageReference Include="TagLibSharp" Version="2.3.0" />
   </ItemGroup>
 

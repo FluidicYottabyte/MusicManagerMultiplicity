@@ -260,7 +260,12 @@ namespace MusicManagerMultiplicity
 
             if (foundSongInList.SongCoverImage != null)
             {
-                AlbumArt.Source = foundSongInList.SongCoverImage;
+                var bitmap = new BitmapImage();
+                bitmap.BeginInit();
+                bitmap.CacheOption = BitmapCacheOption.OnDemand; // Avoid full memory load
+                bitmap.UriSource = foundSongInList.SongCoverImage;
+                bitmap.EndInit();
+                AlbumArt.Source = bitmap;
             }
             else
             {
@@ -323,10 +328,14 @@ namespace MusicManagerMultiplicity
 
         private void AddArtist(object sender, RoutedEventArgs e)
         {
+            Trace.WriteLine("Received artist send");
+
             string ArtistSearch = ArtistSearchBox.Text;
 
             if (ArtistSearch == "") 
             {
+                Trace.WriteLine("Artist is empty");
+
                 string messageBoxText = "Empty artist string!";
                 string caption = "Warning Adding Artist";
                 MessageBoxButton button = MessageBoxButton.OK;
@@ -342,6 +351,7 @@ namespace MusicManagerMultiplicity
             {
                 if (artist.ArtistName.ToLower() == ArtistSearch.ToLower()) //Check if artist already is within list
                 {
+                    Trace.WriteLine("Artist has already been added");
 
                     //If it is in the list, give user ability to add it again because this is a free country. #MURICA
                     string messageBoxText = "There is already an artist under this name!";
@@ -358,18 +368,22 @@ namespace MusicManagerMultiplicity
 
             Artist newArtistItem = new Artist(ArtistSearch);
 
+            Trace.WriteLine("Artist object created!");
+
             if (ArtistLibrary.locateArtistByName(newArtistItem.ArtistName) == null) 
             {
                 ArtistLibrary.UserArtists.Add(newArtistItem);
+                Trace.WriteLine("Artist doesn't exist yet");
             }
             else
             {
                 newArtistItem = ArtistLibrary.locateArtistByName(newArtistItem.ArtistName);
+                Trace.WriteLine("Artist already exists");
             }
 
 
 
-                Artists.Add(new ArtistItem { ArtistName = newArtistItem.ArtistName, DeleteButtonName = newArtistItem.ArtistID.ToString() });
+            Artists.Add(new ArtistItem { ArtistName = newArtistItem.ArtistName, DeleteButtonName = newArtistItem.ArtistID.ToString() });
 
             ArtistSearchBox.ItemsSource = ArtistLibrary.getArtistListAsStrings();
 
@@ -421,7 +435,7 @@ namespace MusicManagerMultiplicity
 
         private void UpdateName(object sender, TextChangedEventArgs args)
         {
-            if (sender == null) { return; }
+            if (sender == null || currentSong==null) { return; }
 
             string newText = SongNameBox.Text;
 

@@ -19,7 +19,7 @@
         </Grid.RowDefinitions>
 		
 		<StackPanel HorizontalAlignment="Center" VerticalAlignment="Center" Background="White">
-			<TextBlock Text="Loading songs..." FontSize="16" Margin="0,0,0,10" HorizontalAlignment="Center"/>
+			<TextBlock TextWrapping="Wrap" Name="StatusText"  Text="Loading songs..." FontSize="16" Margin="0,0,0,10" HorizontalAlignment="Center"/>
 			<ProgressBar x:Name="progressBar" Minimum="0" Maximum="100" Width="160" Height="10"/>
 		</StackPanel>
 	</Grid>

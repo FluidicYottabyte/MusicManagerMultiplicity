@@ -76,6 +76,13 @@ namespace MusicManagerMultiplicity.Classes
                         EditableTextBox.SelectionStart = int.MaxValue;
                     }
 
+                    // Sync the ComboBox.Text with the actual editable textbox content
+                    if (EditableTextBox != null)
+                    {
+                        this.Text = EditableTextBox.Text;
+                    }
+
+
                     base.OnKeyUp(e);
                     currentFilter = Text;
                     break;
@@ -85,12 +92,9 @@ namespace MusicManagerMultiplicity.Classes
         protected override void OnPreviewLostKeyboardFocus(KeyboardFocusChangedEventArgs e)
         {
             ClearFilter();
-            var temp = SelectedIndex;
-            SelectedIndex = -1;
-            Text = string.Empty;
-            SelectedIndex = temp;
             base.OnPreviewLostKeyboardFocus(e);
         }
+
 
         private void RefreshFilter()
         {

@@ -78,16 +78,6 @@ namespace MusicManagerMultiplicity.Classes
             {
                 var options = new JsonSerializerOptions { WriteIndented = true, IncludeFields = true};
 
-                if (songToConvert.SongCover != null)
-                {
-                    Trace.WriteLine("Songcover exists, attempting save");
-
-                    string coverPath = SaveCoverIfUnique(songToConvert.SongCover, CoverPath);
-                    songToConvert.SongCoverPath = coverPath;
-
-                    songToConvert.SongCover = null;
-                }
-
                 string json = JsonSerializer.Serialize(songToConvert, options);
 
 
@@ -150,8 +140,13 @@ namespace MusicManagerMultiplicity.Classes
             encoder.Frames.Add(image);
             encoder.Save(ms);
 
+            
+
             using var sha = System.Security.Cryptography.SHA256.Create();
             byte[] hashBytes = sha.ComputeHash(ms.ToArray());
+
+            ms.Dispose();
+
             return BitConverter.ToString(hashBytes).Replace("-", "").ToLower(); // filename-friendly
         }
 

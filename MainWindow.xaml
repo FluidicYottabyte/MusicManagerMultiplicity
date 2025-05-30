@@ -64,6 +64,7 @@
                         <StackPanel Grid.Row="0" Orientation="Horizontal">
                             <Button x:Name="SoulseekConnectbutton" Margin="5">Connect to Soulseek</Button>
                             <Button x:Name="OpenLibraryButton" Margin="5">Open Your Library</Button>
+                            <Button x:Name="OpenSettings" Margin="5" Click="OpenUserSettings">Settings</Button>
                         </StackPanel>
                         <ProgressBar x:Name="progressBar1" Value="0" Maximum="100" Margin="0,2" Height="3"/>
                         <TextBox x:Name="SearchBar" Margin="0,4">Search Playlists</TextBox>

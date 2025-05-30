@@ -140,7 +140,7 @@
                                 <RowDefinition Height="*"/>
                             </Grid.RowDefinitions>
 
-                            <mm:FilteredComboBox  x:Name="ArtistSearchBox" ItemsPanel="{DynamicResource ItemsTemplate}" Margin="5" FontSize="15" MinWidth="200" HorizontalAlignment="Stretch"/>
+                        <mm:FilteredComboBox  x:Name="ArtistSearchBox" ItemsPanel="{DynamicResource ItemsTemplate}" Margin="5" FontSize="15" MinWidth="200" IsEditable="True" HorizontalAlignment="Stretch"/>
                             <Button Grid.Column="1" Padding="4,2" Margin="5" Click="AddArtist">Add</Button>
                             
                         </Grid>

@@ -75,6 +75,10 @@ namespace MusicManagerMultiplicity.Classes
                 using (var ms = new MemoryStream(bin))
                 {
                     BitmapFrame frame = BitmapFrame.Create(ms, BitmapCreateOptions.PreservePixelFormat, BitmapCacheOption.OnLoad);
+
+                    ms.Position = 0;
+
+
                     frame.Freeze();
 
                     return (frame);
