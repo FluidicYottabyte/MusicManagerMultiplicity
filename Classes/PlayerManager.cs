@@ -121,9 +121,15 @@ namespace MusicManagerMultiplicity.Classes
 
         private double originalVolume;
 
-        internal PlayerManager(Dispatcher ApplicationDispatcher, string TimeProgressItem)
+        private RichPrescenceHandler Discord;
+
+        private DispatcherTimer updateTimer;
+
+        internal PlayerManager(Dispatcher ApplicationDispatcher, string TimeProgressItem, RichPrescenceHandler discordPrescence)
         {
             this.Dispatcher = ApplicationDispatcher;
+
+            this.Discord = discordPrescence;
 
             TimeProgress = TimeProgressItem;
 
@@ -131,6 +137,23 @@ namespace MusicManagerMultiplicity.Classes
 
             mediaPlayer.MediaEnded += SongEnded;
             timer = new DispatcherTimer(TimeSpan.FromMilliseconds(100), DispatcherPriority.Input, TimerTick, this.Dispatcher);
+
+
+            // Set initial presence
+
+            // Start timer to update periodically
+            updateTimer = new DispatcherTimer
+            {
+                Interval = TimeSpan.FromSeconds(15)
+            };
+            updateTimer.Tick += (s, e) => UpdatePresence();
+            updateTimer.Start();
+
+        }
+
+        private void UpdatePresence()
+        {
+            Discord.SetPlayingInfo(CurrentSong);
         }
 
         public void SetSlider(Slider sliderset)
@@ -231,6 +254,8 @@ namespace MusicManagerMultiplicity.Classes
             {
                 // Set the maximum value of the slider to the total duration of the media
                 slider.Maximum = mediaPlayer.NaturalDuration.TimeSpan.TotalSeconds;
+
+                //Discord.SetPlayingInfo(CurrentSong, (int)Math.Floor(mediaPlayer.NaturalDuration.TimeSpan.TotalSeconds));
 
                 // Initialize the slider.
                 // The ProgressBar is automatically updated 
@@ -416,6 +441,8 @@ namespace MusicManagerMultiplicity.Classes
                 mediaPlayer.Open(new Uri(CurrentSong.FileLocation, UriKind.RelativeOrAbsolute));
                 mediaPlayer.Play();
             }
+
+            UpdatePresence();
         }
 
         public void Pause()

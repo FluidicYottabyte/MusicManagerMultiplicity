@@ -107,7 +107,7 @@ namespace MusicManagerMultiplicity
 
             this.DataContext = this;
 
-            playerManager = new PlayerManager(System.Windows.Application.Current.Dispatcher, SongProgressNumbers);
+            playerManager = new PlayerManager(System.Windows.Application.Current.Dispatcher, SongProgressNumbers, discordHandler);
 
             Playlists = new ObservableCollection<PlaylistItem>();
 
