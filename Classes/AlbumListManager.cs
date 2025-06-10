@@ -37,6 +37,10 @@ namespace MusicManagerMultiplicity.Classes
         {
             foreach (var item in UserAlbums)
             {
+                if (item == null)
+                {
+                    continue;
+                }
                 if (item.AlbumName == nameSearch)
                 {
                     return item;

@@ -124,11 +124,19 @@ namespace MusicManagerMultiplicity
                         Song tempSong = new Song(newfile);
                         tempSong.ParseRelevantData(AlbumList, ArtistLibrary);
 
-
-                        Dispatcher.Invoke(() =>
+                        if (tempSong == null)
                         {
-                            AddSongToLoad(tempSong); //Make sure this works because it kinda makes everything
-                        });
+                            Trace.WriteLine("Song created was null, no metadata");
+                        } else
+                        {
+                            Trace.WriteLine("Kill yourself");
+                        }
+
+
+                            Dispatcher.Invoke(() =>
+                            {
+                                AddSongToLoad(tempSong); //Make sure this works because it kinda makes everything
+                            });
                          
 
                         // Update the progress bar on the UI thread
