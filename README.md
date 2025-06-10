@@ -1,6 +1,6 @@
 ## Music Manager Multiplicity is the successor of [Music Manager](https://github.com/FluidicYottabyte/MusicManager)
 
-If you are using or considering installing Music Manager, it's highly encouraged that you use Music Manager Multiplicity instead. Put shortly, it's better in every single way.
+If you are using or considering installing Music Manager, it's **highly encouraged** that you use Music Manager Multiplicity instead. Put shortly, it's better in every single way.
 
 * Speed and memory usage greatly improved by switching from Python to C#
 * Options now exist for Albums, and Artists, which can be individually edited
