@@ -34,6 +34,8 @@ namespace MusicManagerMultiplicity
         private PlayerManager playerManager;
         private SongLibrary songLibrary = new SongLibrary();
         private PlaylistLibrary playlistLibrary;
+
+        private RichPrescenceHandler discordHandler;
         
 
         private ArtistListManager artistManager = new ArtistListManager();
@@ -101,6 +103,7 @@ namespace MusicManagerMultiplicity
             playlistLibrary = new PlaylistLibrary(songLibrary);
 
             InitializeComponent();
+            discordHandler = new RichPrescenceHandler();
 
             this.DataContext = this;
 
@@ -277,6 +280,8 @@ namespace MusicManagerMultiplicity
             songLibrary.SaveSongs();
             playlistLibrary.SavePlaylists();
             artistManager.SaveArtists();
+
+            discordHandler.Destroy();
         }
 
         private void Slider_DragStarted(object sender, System.Windows.Controls.Primitives.DragStartedEventArgs e)
