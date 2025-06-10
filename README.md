@@ -9,5 +9,11 @@ If you are using or considering installing Music Manager, it's highly encouraged
 * Playlists can have image icons, or not
 * Songs can now be easily imported and edited
 * Can be launched from simple executable, no install necessary!
+* Now with Discord rich presence!
 
-Future plans involve implimenting proper SoulSeek connectivity and UI customization.
+### Coming soon:
+
+* SoulSeek connectivity
+* UI customization
+* Library view
+* Save button (as opposed to autosave)
