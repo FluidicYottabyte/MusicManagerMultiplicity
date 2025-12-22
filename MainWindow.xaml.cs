@@ -41,6 +41,8 @@ namespace MusicManagerMultiplicity
         private ArtistListManager artistManager = new ArtistListManager();
         private AlbumListManager albumManager = new AlbumListManager();
 
+        private SettingsDataSave userSettings = new SettingsDataSave();
+
         private static string localAppData = Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData);
         private static string appDataFolder = System.IO.Path.Combine(localAppData, "MusicManagerMultiplicity");
 
@@ -122,6 +124,19 @@ namespace MusicManagerMultiplicity
             playerManager.ShuffleStatusChanged += value => SetShuffleButtonColor(value);
 
             playerManager.TimeProgressChanged += value => UpdateTime(value);
+
+            SettingsDataSave tempdat = JsonHelper.LoadSettingsFromJson();
+            
+            if (tempdat != null)
+            {
+                userSettings = tempdat;
+            };
+
+            playerManager.ChangeVolume(userSettings.ReadVolume() / 100.0);
+
+            VolumeSlider.Value = userSettings.ReadVolume();
+
+            Trace.WriteLine("Volume is loaded in main as: " + userSettings.ReadVolume().ToString());
 
             if (File.Exists("/Assets/default.png")) //Finish implementing the default image loading
             {
@@ -275,6 +290,9 @@ namespace MusicManagerMultiplicity
         {
             base.OnClosed(e);
 
+            JsonHelper.SaveSettingsToJson(userSettings);
+            Trace.WriteLine("Successfully saved settings to Json!");
+
             playerManager.OnClosed();
 
             songLibrary.SaveSongs();
@@ -313,7 +331,11 @@ namespace MusicManagerMultiplicity
 
 
 
-            playerManager.ChangeVolume((VolumeSlider.Value));
+            playerManager.ChangeVolume((VolumeSlider.Value/100));
+
+            userSettings.SetVolume((int)(Math.Round(VolumeSlider.Value)));
+
+            Trace.WriteLine("Volume will now be saved as: " + ((int)(Math.Round(VolumeSlider.Value))).ToString());
         }
 
         private void OpenUserSettings(object sender, RoutedEventArgs e)

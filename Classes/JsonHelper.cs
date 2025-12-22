@@ -8,6 +8,7 @@ using System.Text.Json;
 using System.Threading.Tasks;
 using System.Windows.Media.Imaging;
 using System.Diagnostics;
+using System.Runtime.CompilerServices;
 
 namespace MusicManagerMultiplicity.Classes
 {
@@ -170,6 +171,33 @@ namespace MusicManagerMultiplicity.Classes
             }
 
             return imagePath; // store this in your song JSON
+        }
+
+
+        public static void SaveSettingsToJson(SettingsDataSave settingClass)
+        {
+
+            string filePath = Path.Combine(appDataFolder, "Utility","Settings.json");
+
+            Directory.CreateDirectory(
+                Path.Combine(appDataFolder, "Utility")
+            );
+
+
+            var options = new JsonSerializerOptions { WriteIndented = true };
+            string json = JsonSerializer.Serialize(settingClass, options);
+            File.WriteAllText(filePath, json);
+        }
+
+        public static SettingsDataSave LoadSettingsFromJson()
+        {
+            string filePath = Path.Combine(appDataFolder, "Utility", "Settings.json");
+
+            if (!File.Exists(filePath))
+                return null;
+
+            string json = File.ReadAllText(filePath);
+            return JsonSerializer.Deserialize<SettingsDataSave>(json);
         }
 
 
