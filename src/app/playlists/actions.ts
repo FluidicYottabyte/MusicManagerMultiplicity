@@ -23,7 +23,7 @@ async function requireOwnerOrAdmin(playlistId: string) {
   return { user, playlist };
 }
 
-async function saveCoverImage(file: File): Promise<string> {
+async function saveCoverImage(file: NodeFile): Promise<string> {
   const ext = path.extname(file.name).slice(1).toLowerCase();
   if (!ALLOWED_IMAGE_EXTENSIONS.has(ext)) {
     throw new Error("Unsupported image type");
