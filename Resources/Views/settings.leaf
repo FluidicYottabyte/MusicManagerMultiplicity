@@ -1,0 +1,37 @@
+#extend("base"):
+#export("content"):
+<h1>Settings</h1>
+#if(message):
+<div class="info-message">#(message)</div>
+#endif
+<div class="win-panel win-raised">
+    <h3>Theme colors</h3>
+    <p style="font-size:11px;">
+        Only affects your own view. Leave the defaults if you like the original palette.
+    </p>
+    <form action="/settings" method="post">
+        <input type="hidden" name="csrf_token" value="#(base.csrfToken)">
+        <div class="theme-swatch-row">
+            <label>Background
+                <input type="color" name="themeBackground" value="#(base.palette.background)">
+            </label>
+            <label>Panels
+                <input type="color" name="themeAccent" value="#(base.palette.accent)">
+            </label>
+            <label>Buttons
+                <input type="color" name="themeForeground" value="#(base.palette.foreground)">
+            </label>
+            <label>Button hover
+                <input type="color" name="themeAccentForeground" value="#(base.palette.accentForeground)">
+            </label>
+        </div>
+        <button type="submit" class="win-button">Save Colors</button>
+    </form>
+    <form action="/settings" method="post" style="margin-top:10px;">
+        <input type="hidden" name="csrf_token" value="#(base.csrfToken)">
+        <input type="hidden" name="reset" value="true">
+        <button type="submit" class="win-button small">Reset to Default</button>
+    </form>
+</div>
+#endexport
+#endextend

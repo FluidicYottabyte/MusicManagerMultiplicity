@@ -1,0 +1,36 @@
+#extend("base"):
+#export("content"):
+<h1>#(name)</h1>
+<p>by #(ownerUsername)
+#if(canEdit): — <a href="/playlists/#(playlistID)/edit">Edit</a>#endif
+</p>
+
+#if(isEmpty):
+<p>This playlist is empty#if(canEdit). <a href="/playlists/#(playlistID)/edit">Add some songs</a>#endif.</p>
+#else:
+<div class="win-sunken song-list" data-queue>
+<table class="rows">
+    <tbody>
+    #for(song in songs):
+    <tr class="song-row" data-id="#(song.id)">
+        <td><img class="thumb" src="#(song.coverURL)" alt=""></td>
+        <td>#(song.title)</td>
+        <td>#(song.artistNames)</td>
+        <td>#(song.albumName)</td>
+    </tr>
+    #endfor
+    </tbody>
+</table>
+<script type="application/json">#(songsJSON)</script>
+</div>
+#endif
+
+#if(canEdit):
+<form action="/playlists/#(playlistID)/delete" method="post" style="margin-top:14px;"
+      onsubmit="return confirm('Delete this playlist? This cannot be undone.');">
+    <input type="hidden" name="csrf_token" value="#(base.csrfToken)">
+    <button type="submit" class="win-button">Delete Playlist</button>
+</form>
+#endif
+#endexport
+#endextend

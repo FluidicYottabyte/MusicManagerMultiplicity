@@ -1,0 +1,12 @@
+.build/
+.git/
+.swiftpm/
+storage/
+*.sqlite
+.claude/
+Assets/
+*.xaml
+*.xaml.cs
+*.csproj
+*.sln
+Classes/

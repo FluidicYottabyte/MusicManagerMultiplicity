@@ -1,0 +1,34 @@
+#extend("base"):
+#export("content"):
+<h1>Upload a Song</h1>
+#if(errorMessage):
+<div class="error-message">#(errorMessage)</div>
+#endif
+<div class="win-panel win-raised">
+    <form action="/upload" method="post" enctype="multipart/form-data" data-full-reload>
+        <input type="hidden" name="csrf_token" value="#(base.csrfToken)">
+
+        <label for="file">Audio file (mp3, m4a, aac, flac, wav, ogg, aiff)</label>
+        <input type="file" id="file" name="file" accept=".mp3,.m4a,.aac,.flac,.wav,.ogg,.aiff,.aif" required>
+
+        <p style="font-size:11px;">
+            Uploaded audio is transcoded to AAC (192kbps) for playback. The fields below are optional —
+            leave blank to use whatever tags are embedded in the file.
+        </p>
+
+        <label for="title">Title override</label>
+        <input type="text" id="title" name="title" style="width:100%">
+
+        <label for="artistNames">Artist(s) override (comma-separated)</label>
+        <input type="text" id="artistNames" name="artistNames" style="width:100%">
+
+        <label for="albumName">Album override</label>
+        <input type="text" id="albumName" name="albumName" style="width:100%">
+
+        <div style="margin-top:14px;">
+            <button type="submit" class="win-button">Upload</button>
+        </div>
+    </form>
+</div>
+#endexport
+#endextend

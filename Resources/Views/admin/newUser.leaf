@@ -1,0 +1,28 @@
+#extend("base"):
+#export("content"):
+<h1>New User</h1>
+#if(errorMessage):
+<div class="error-message">#(errorMessage)</div>
+#endif
+<div class="win-panel win-raised">
+    <form action="/admin/users" method="post">
+        <input type="hidden" name="csrf_token" value="#(base.csrfToken)">
+
+        <label for="username">Username</label>
+        <input type="text" id="username" name="username" required style="width:100%">
+
+        <label for="password">Initial password (min 8 characters)</label>
+        <input type="password" id="password" name="password" required minlength="8" style="width:100%">
+
+        <label style="display:flex; align-items:center; gap:6px; font-weight:normal;">
+            <input type="checkbox" name="isAdmin" value="true">
+            Grant admin access
+        </label>
+
+        <div style="margin-top:14px;">
+            <button type="submit" class="win-button">Create User</button>
+        </div>
+    </form>
+</div>
+#endexport
+#endextend

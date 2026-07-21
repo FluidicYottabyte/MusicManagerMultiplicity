@@ -1,0 +1,98 @@
+#extend("base"):
+#export("content"):
+#if(isEdit):
+<h1>Edit Playlist</h1>
+#else:
+<h1>New Playlist</h1>
+#endif
+
+#if(errorMessage):
+<div class="error-message">#(errorMessage)</div>
+#endif
+
+<div class="win-panel win-raised">
+#if(isEdit):
+    <form action="/playlists/#(playlistID)" method="post" enctype="multipart/form-data">
+#else:
+    <form action="/playlists" method="post" enctype="multipart/form-data">
+#endif
+        <input type="hidden" name="csrf_token" value="#(base.csrfToken)">
+
+        <label for="name">Name</label>
+        <input type="text" id="name" name="name" value="#(name)" required style="width:100%">
+
+        <label style="display:flex; align-items:center; gap:6px; font-weight:normal;">
+            <input type="checkbox" name="imageEnabled" value="true" #if(imageEnabled):checked#endif>
+            Enable cover image
+        </label>
+        <input type="file" name="coverImage" accept=".png,.jpg,.jpeg,.gif">
+
+        <div style="margin-top:14px;">
+            <button type="submit" class="win-button">Save</button>
+        </div>
+    </form>
+</div>
+
+#if(isEdit):
+<h3>Songs in this playlist</h3>
+#if(hasSongs):
+<div class="win-sunken song-list" data-queue>
+<table class="rows">
+    <tbody>
+    #for(song in songs):
+    <tr class="song-row" data-id="#(song.id)">
+        <td><img class="thumb" src="#(song.coverURL)" alt=""></td>
+        <td>#(song.title)</td>
+        <td>#(song.artistNames)</td>
+        <td onclick="event.stopPropagation();">
+            <form action="/playlists/#(playlistID)/songs/#(song.id)/move-up" method="post" style="display:inline;">
+                <input type="hidden" name="csrf_token" value="#(base.csrfToken)">
+                <button type="submit" class="win-button small" title="Move up">↑</button>
+            </form>
+            <form action="/playlists/#(playlistID)/songs/#(song.id)/move-down" method="post" style="display:inline;">
+                <input type="hidden" name="csrf_token" value="#(base.csrfToken)">
+                <button type="submit" class="win-button small" title="Move down">↓</button>
+            </form>
+            <form action="/playlists/#(playlistID)/songs/#(song.id)/remove" method="post" style="display:inline;">
+                <input type="hidden" name="csrf_token" value="#(base.csrfToken)">
+                <button type="submit" class="win-button small" title="Remove">✕</button>
+            </form>
+        </td>
+    </tr>
+    #endfor
+    </tbody>
+</table>
+<script type="application/json">#(songsJSON)</script>
+</div>
+#else:
+<p>No songs added yet — add some from the library below.</p>
+#endif
+
+<h3>Add from library</h3>
+#if(hasAvailableSongs):
+<div class="win-sunken song-list">
+<table class="rows">
+    <tbody>
+    #for(song in availableSongs):
+    <tr>
+        <td><img class="thumb" src="#(song.coverURL)" alt=""></td>
+        <td>#(song.title)</td>
+        <td>#(song.artistNames)</td>
+        <td>
+            <form action="/playlists/#(playlistID)/songs" method="post">
+                <input type="hidden" name="csrf_token" value="#(base.csrfToken)">
+                <input type="hidden" name="songID" value="#(song.id)">
+                <button type="submit" class="win-button small">+ Add</button>
+            </form>
+        </td>
+    </tr>
+    #endfor
+    </tbody>
+</table>
+</div>
+#else:
+<p>Every song in the library is already in this playlist.</p>
+#endif
+#endif
+#endexport
+#endextend

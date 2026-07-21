@@ -361,3 +361,10 @@ MigrationBackup/
 
 # Fody - auto-generated XML schema
 FodyWeavers.xsd
+# --- Swift / Vapor (new web app) ---
+.build/
+.swiftpm/
+*.sqlite
+*.sqlite-shm
+*.sqlite-wal
+storage/

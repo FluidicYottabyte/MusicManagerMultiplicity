@@ -1,0 +1,64 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Music Manager</title>
+    <link rel="stylesheet" href="/css/site.css">
+    <style>
+        :root {
+            --bg: #(base.palette.background);
+            --accent-bg: #(base.palette.accent);
+            --fg: #(base.palette.foreground);
+            --accent-fg: #(base.palette.accentForeground);
+        }
+    </style>
+</head>
+<body>
+    <nav class="win-nav">
+        <div class="links">
+            <a href="/library">Library</a>
+            <a href="/artists">Artists</a>
+            <a href="/albums">Albums</a>
+            <a href="/playlists">Playlists</a>
+            <a href="/upload">Upload</a>
+            <button type="button" class="win-button small disabled" disabled title="Not implemented">Connect to Soulseek</button>
+            #if(base.currentUser.isAdmin):
+            <a href="/admin/users">Admin</a>
+            #endif
+            <a href="/settings">Settings</a>
+        </div>
+        <form action="/logout" method="post">
+            <input type="hidden" name="csrf_token" value="#(base.csrfToken)">
+            <span>#(base.currentUser.username)</span>
+            <button type="submit" class="win-button small">Log out</button>
+        </form>
+    </nav>
+
+    <main id="app-content">
+        #import("content")
+    </main>
+
+    <div id="player-bar" class="win-sunken">
+        <img id="now-playing-cover" src="/images/default-cover.png" alt="">
+        <div class="now-playing-text">
+            <div id="now-playing-title">Nothing playing</div>
+            <div id="now-playing-artist" style="font-size:11px;"></div>
+        </div>
+        <div class="transport">
+            <button type="button" class="win-button small" id="btn-prev" title="Previous">⏮</button>
+            <button type="button" class="win-button small" id="btn-play" title="Play/Pause">⏯</button>
+            <button type="button" class="win-button small" id="btn-next" title="Next">⏭</button>
+            <button type="button" class="win-button small" id="btn-shuffle" title="Shuffle">🔀</button>
+        </div>
+        <input type="range" id="seek-bar" min="0" max="100" value="0" step="0.1">
+        <div class="volume-group">
+            <span>🔈</span>
+            <input type="range" id="volume-bar" min="0" max="1" value="0.5" step="0.01">
+        </div>
+    </div>
+
+    <audio id="player" preload="none"></audio>
+    <script src="/js/player.js"></script>
+</body>
+</html>

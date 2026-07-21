@@ -1,0 +1,32 @@
+#extend("base"):
+#export("content"):
+<h1>Admin — Users</h1>
+#if(errorMessage):
+<div class="error-message">#(errorMessage)</div>
+#endif
+<a href="/admin/users/new" class="win-button">+ New User</a>
+
+<div class="win-sunken song-list" style="margin-top:14px;">
+<table class="rows">
+    <thead>
+        <tr><td><b>Username</b></td><td><b>Admin?</b></td><td></td></tr>
+    </thead>
+    <tbody>
+    #for(user in users):
+    <tr>
+        <td>#(user.username)</td>
+        <td>#if(user.isAdmin):Yes#else:No#endif</td>
+        <td>
+            <form action="/admin/users/#(user.id)/delete" method="post"
+                  onsubmit="return confirm('Delete this user?');">
+                <input type="hidden" name="csrf_token" value="#(base.csrfToken)">
+                <button type="submit" class="win-button small">Delete</button>
+            </form>
+        </td>
+    </tr>
+    #endfor
+    </tbody>
+</table>
+</div>
+#endexport
+#endextend

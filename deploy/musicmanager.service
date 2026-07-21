@@ -1,0 +1,19 @@
+[Unit]
+Description=Music Manager (Vapor)
+After=network.target
+
+[Service]
+Type=simple
+User=musicmanager
+Group=musicmanager
+WorkingDirectory=/opt/musicmanager
+ExecStart=/opt/musicmanager/App serve --env production --hostname 127.0.0.1 --port 8080
+Restart=on-failure
+RestartSec=5
+Environment=LOG_LEVEL=info
+
+# Vapor binds to 127.0.0.1 only — never exposed directly to the internet.
+# Apache (see apache-musicmanager.conf) is the only public entry point.
+
+[Install]
+WantedBy=multi-user.target

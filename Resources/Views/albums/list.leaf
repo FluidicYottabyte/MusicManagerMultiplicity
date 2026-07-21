@@ -1,0 +1,17 @@
+#extend("base"):
+#export("content"):
+<h1>Albums</h1>
+#if(isEmpty):
+<p>No albums yet.</p>
+#else:
+<div class="card-grid">
+    #for(album in albums):
+    <a class="card win-raised" href="/albums/#(album.id)">
+        <img src="#(album.coverURL)" alt="">
+        <div class="name">#(album.name)</div>
+    </a>
+    #endfor
+</div>
+#endif
+#endexport
+#endextend

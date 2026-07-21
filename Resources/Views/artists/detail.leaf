@@ -1,0 +1,32 @@
+#extend("base"):
+#export("content"):
+<h1>#(artistName)</h1>
+
+#if(hasAlbums):
+<h3>Albums</h3>
+<div class="card-grid" style="margin-bottom:18px;">
+    #for(album in albums):
+    <a class="card win-raised" href="/albums/#(album.id)">
+        <div class="name">#(album.name)</div>
+    </a>
+    #endfor
+</div>
+#endif
+
+<h3>Songs</h3>
+<div class="win-sunken song-list" data-queue>
+<table class="rows">
+    <tbody>
+    #for(song in songs):
+    <tr class="song-row" data-id="#(song.id)">
+        <td><img class="thumb" src="#(song.coverURL)" alt=""></td>
+        <td>#(song.title)</td>
+        <td>#(song.albumName)</td>
+    </tr>
+    #endfor
+    </tbody>
+</table>
+<script type="application/json">#(songsJSON)</script>
+</div>
+#endexport
+#endextend

@@ -1,0 +1,17 @@
+#extend("base"):
+#export("content"):
+<h1>Artists</h1>
+#if(isEmpty):
+<p>No artists yet.</p>
+#else:
+<div class="card-grid">
+    #for(artist in artists):
+    <a class="card win-raised" href="/artists/#(artist.id)">
+        <div class="name">#(artist.name)</div>
+        <div style="font-size:11px;">#(artist.songCount) song(s)</div>
+    </a>
+    #endfor
+</div>
+#endif
+#endexport
+#endextend

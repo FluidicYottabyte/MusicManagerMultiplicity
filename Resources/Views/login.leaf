@@ -1,0 +1,49 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Music Manager — Log In</title>
+    <link rel="stylesheet" href="/css/site.css">
+    <style>
+        :root {
+            --bg: #(base.palette.background);
+            --accent-bg: #(base.palette.accent);
+            --fg: #(base.palette.foreground);
+            --accent-fg: #(base.palette.accentForeground);
+        }
+        body {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            min-height: 100vh;
+        }
+        .login-box {
+            width: 320px;
+        }
+    </style>
+</head>
+<body>
+    <div class="login-box">
+        <div class="win-titlebar">Music Manager</div>
+        <div class="win-panel win-raised">
+            #if(errorMessage):
+            <div class="error-message">#(errorMessage)</div>
+            #endif
+            <form action="/login" method="post">
+                <input type="hidden" name="csrf_token" value="#(base.csrfToken)">
+                <label for="username">Username</label>
+                <input type="text" id="username" name="username" autofocus required style="width:100%">
+                <label for="password">Password</label>
+                <input type="password" id="password" name="password" required style="width:100%">
+                <div style="margin-top:14px; text-align:center">
+                    <button type="submit" class="win-button">Log In</button>
+                </div>
+            </form>
+            <p style="font-size:11px; text-align:center; margin-top:10px;">
+                Accounts are created by an admin — there is no self-service sign-up.
+            </p>
+        </div>
+    </div>
+</body>
+</html>
