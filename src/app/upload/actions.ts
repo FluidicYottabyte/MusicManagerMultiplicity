@@ -1,6 +1,6 @@
 "use server";
 
-import { File } from "node:buffer";
+import { File as NodeFile } from "node:buffer";
 import { randomUUID } from "node:crypto";
 import { rm, stat, writeFile } from "node:fs/promises";
 import path from "node:path";
@@ -102,7 +102,7 @@ async function uploadOne(
 export async function uploadSong(formData: FormData): Promise<void> {
   const user = await requireUser();
 
-  const files = formData.getAll("file").filter((f): f is File => f instanceof File && f.size > 0);
+  const files = formData.getAll("file").filter((f): f is File => f instanceof NodeFile && f.size > 0);
   if (files.length === 0) {
     redirect("/upload?error=Please+choose+at+least+one+file+or+folder");
   }

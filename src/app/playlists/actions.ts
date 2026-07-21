@@ -1,6 +1,6 @@
 "use server";
 
-import { File } from "node:buffer";
+import { File as NodeFile } from "node:buffer";
 import { randomUUID } from "node:crypto";
 import { writeFile } from "node:fs/promises";
 import path from "node:path";
@@ -43,7 +43,7 @@ export async function createPlaylist(formData: FormData): Promise<void> {
   const file = formData.get("coverImage");
 
   let coverImagePath: string | null = null;
-  if (imageEnabled && file instanceof File && file.size > 0) {
+  if (imageEnabled && file instanceof NodeFile && file.size > 0) {
     coverImagePath = await saveCoverImage(file);
   }
 
@@ -64,7 +64,7 @@ export async function updatePlaylist(playlistId: string, formData: FormData): Pr
   const file = formData.get("coverImage");
 
   let coverImagePath = playlist.coverImagePath;
-  if (imageEnabled && file instanceof File && file.size > 0) {
+  if (imageEnabled && file instanceof NodeFile && file.size > 0) {
     coverImagePath = await saveCoverImage(file);
   }
 
