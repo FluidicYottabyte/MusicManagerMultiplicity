@@ -1,5 +1,6 @@
 "use server";
 
+import { File } from "node:buffer";
 import { randomUUID } from "node:crypto";
 import { rm, stat, writeFile } from "node:fs/promises";
 import path from "node:path";
@@ -21,20 +22,15 @@ function nonEmpty(value: FormDataEntryValue | null): string | null {
   return trimmed.length > 0 ? trimmed : null;
 }
 
-export async function uploadSong(formData: FormData): Promise<void> {
-  const user = await requireUser();
-
-  const file = formData.get("file");
-  if (!(file instanceof File) || file.size === 0) {
-    redirect("/upload?error=Please+choose+a+file");
-  }
-
+async function uploadOne(
+  file: File,
+  overrides: { title: string | null; artistNames: string | null; albumName: string | null },
+  userId: string
+): Promise<{ ok: true } | { ok: false; reason: string }> {
   const ext = path.extname(file.name).slice(1).toLowerCase();
   if (!ALLOWED_EXTENSIONS.has(ext)) {
-    redirect("/upload?error=Unsupported+file+type");
+    return { ok: false, reason: `Unsupported file type: ${file.name}` };
   }
-
-  await ensureStorageDirectories();
 
   const tmpInputPath = path.join(StoragePaths.tmpDir, `${randomUUID()}.${ext}`);
   await writeFile(tmpInputPath, Buffer.from(await file.arrayBuffer()));
@@ -42,7 +38,7 @@ export async function uploadSong(formData: FormData): Promise<void> {
   try {
     const metadata = await probe(tmpInputPath);
     if (!metadata.hasAudioStream) {
-      redirect("/upload?error=File+does+not+contain+a+valid+audio+stream");
+      return { ok: false, reason: `Not a valid audio file: ${file.name}` };
     }
 
     const songId = randomUUID();
@@ -52,7 +48,7 @@ export async function uploadSong(formData: FormData): Promise<void> {
     try {
       await transcodeToAAC(tmpInputPath, outputPath);
     } catch {
-      redirect("/upload?error=Transcoding+failed");
+      return { ok: false, reason: `Transcoding failed: ${file.name}` };
     }
 
     let coverImagePath: string | null = null;
@@ -62,9 +58,9 @@ export async function uploadSong(formData: FormData): Promise<void> {
       coverImagePath = coverFilename;
     }
 
-    const title = nonEmpty(formData.get("title")) ?? metadata.title ?? path.parse(file.name).name;
-    const artistNamesRaw = nonEmpty(formData.get("artistNames")) ?? metadata.artist;
-    const albumNameRaw = nonEmpty(formData.get("albumName")) ?? metadata.album;
+    const title = overrides.title ?? metadata.title ?? path.parse(file.name).name;
+    const artistNamesRaw = overrides.artistNames ?? metadata.artist;
+    const albumNameRaw = overrides.albumName ?? metadata.album;
 
     const album = await resolveAlbum(prisma, albumNameRaw);
     const artists = artistNamesRaw ? await resolveArtistsFromCommaSeparated(prisma, artistNamesRaw) : [];
@@ -86,7 +82,7 @@ export async function uploadSong(formData: FormData): Promise<void> {
         durationSeconds: metadata.durationSeconds,
         coverImagePath,
         fileSizeBytes,
-        uploadedById: user.id,
+        uploadedById: userId,
         artists: { create: artists.map((artist) => ({ artistId: artist.id })) },
       },
     });
@@ -96,9 +92,53 @@ export async function uploadSong(formData: FormData): Promise<void> {
         await attachAlbumArtistIfMissing(prisma, album.id, artist.id);
       }
     }
+
+    return { ok: true };
   } finally {
     await rm(tmpInputPath, { force: true });
   }
+}
 
-  redirect("/library");
+export async function uploadSong(formData: FormData): Promise<void> {
+  const user = await requireUser();
+
+  const files = formData.getAll("file").filter((f): f is File => f instanceof File && f.size > 0);
+  if (files.length === 0) {
+    redirect("/upload?error=Please+choose+at+least+one+file+or+folder");
+  }
+
+  await ensureStorageDirectories();
+
+  // Manual title/artist/album overrides only make sense for a single file;
+  // for a batch upload every song would otherwise get the same title.
+  const overrides =
+    files.length === 1
+      ? {
+          title: nonEmpty(formData.get("title")),
+          artistNames: nonEmpty(formData.get("artistNames")),
+          albumName: nonEmpty(formData.get("albumName")),
+        }
+      : { title: null, artistNames: null, albumName: null };
+
+  let succeeded = 0;
+  const failures: string[] = [];
+
+  for (const file of files) {
+    const result = await uploadOne(file, overrides, user.id);
+    if (result.ok) {
+      succeeded++;
+    } else {
+      failures.push(result.reason);
+    }
+  }
+
+  if (succeeded === 0) {
+    redirect(`/upload?error=${encodeURIComponent(failures[0] ?? "Upload failed")}`);
+  }
+
+  const params = new URLSearchParams({ uploaded: String(succeeded) });
+  if (failures.length > 0) {
+    params.set("failed", String(failures.length));
+  }
+  redirect(`/library?${params.toString()}`);
 }

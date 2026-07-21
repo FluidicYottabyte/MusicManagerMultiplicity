@@ -6,7 +6,11 @@ function coverUrl(songId: string, hasCover: boolean): string {
   return hasCover ? `/api/covers/${songId}` : "/images/default-cover.png";
 }
 
-export default async function LibraryPage({ searchParams }: { searchParams: { q?: string } }) {
+export default async function LibraryPage({
+  searchParams,
+}: {
+  searchParams: { q?: string; uploaded?: string; failed?: string };
+}) {
   const q = searchParams.q?.trim() ?? "";
 
   const songs = await prisma.song.findMany({
@@ -32,6 +36,12 @@ export default async function LibraryPage({ searchParams }: { searchParams: { q?
   return (
     <div>
       <h1>Library</h1>
+      {searchParams.uploaded && (
+        <div className="info-message">
+          Uploaded {searchParams.uploaded} song{searchParams.uploaded === "1" ? "" : "s"}.
+          {searchParams.failed ? ` ${searchParams.failed} file(s) were skipped (unsupported or not audio).` : ""}
+        </div>
+      )}
       <form method="GET" className="win-panel win-raised">
         <label htmlFor="q">Search</label>
         <input id="q" name="q" type="search" defaultValue={q} placeholder="Title, artist, or album" />
