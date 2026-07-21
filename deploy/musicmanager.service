@@ -1,0 +1,22 @@
+[Unit]
+Description=Music Manager (Next.js)
+After=network.target
+
+[Service]
+Type=simple
+User=musicmanager
+Group=musicmanager
+WorkingDirectory=/opt/musicmanager
+ExecStart=/usr/bin/node server.js
+Restart=on-failure
+RestartSec=5
+Environment=NODE_ENV=production
+Environment=HOSTNAME=127.0.0.1
+Environment=PORT=3000
+EnvironmentFile=/opt/musicmanager/.env
+
+# Next.js binds to 127.0.0.1 only - never exposed directly to the internet.
+# Apache (see apache-musicmanager.conf) is the only public entry point.
+
+[Install]
+WantedBy=multi-user.target

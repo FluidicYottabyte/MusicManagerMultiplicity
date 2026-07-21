@@ -1,7 +1,8 @@
 /* Boxy/old-school chrome using the original WPF app's warm palette
    (App.xaml: MainBackground #ffeca7, AccentBackground #e49364,
    MainForeground #db434c, AccentForeground #c70039). Defaults here are
-   overridden per-user via inline :root variables in base.leaf / login.leaf. */
+   overridden per-user via inline :root variables set by ThemeStyle
+   in the root layout. */
 :root {
     --bg: #ffeca7;
     --accent-bg: #e49364;

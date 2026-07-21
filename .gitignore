@@ -361,10 +361,14 @@ MigrationBackup/
 
 # Fody - auto-generated XML schema
 FodyWeavers.xsd
-# --- Swift / Vapor (new web app) ---
-.build/
-.swiftpm/
+# --- Node / Next.js (new web app) ---
+node_modules/
+.next/
+out/
+next-env.d.ts
 *.sqlite
 *.sqlite-shm
 *.sqlite-wal
 storage/
+.env
+.env*.local

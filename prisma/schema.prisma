@@ -1,0 +1,118 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "sqlite"
+  url      = env("DATABASE_URL")
+}
+
+model User {
+  id       String @id @default(uuid())
+  username String @unique
+
+  passwordHash String
+  isAdmin      Boolean @default(false)
+
+  // Nullable per-user theme overrides. Null means "use the app default"
+  // (see src/lib/theme.ts for the original app's palette).
+  themeBackground       String?
+  themeAccent           String?
+  themeForeground       String?
+  themeAccentForeground String?
+
+  createdAt DateTime @default(now())
+
+  uploadedSongs Song[]
+  playlists     Playlist[]
+}
+
+model Artist {
+  id   String @id @default(uuid())
+  name String
+
+  songs  SongArtist[]
+  albums AlbumArtist[]
+}
+
+model Album {
+  id             String   @id @default(uuid())
+  name           String
+  coverImagePath String?
+  createdAt      DateTime @default(now())
+
+  songs   Song[]
+  artists AlbumArtist[]
+}
+
+model SongArtist {
+  songId   String
+  artistId String
+
+  song   Song   @relation(fields: [songId], references: [id], onDelete: Cascade)
+  artist Artist @relation(fields: [artistId], references: [id], onDelete: Cascade)
+
+  @@id([songId, artistId])
+}
+
+model AlbumArtist {
+  albumId  String
+  artistId String
+
+  album  Album  @relation(fields: [albumId], references: [id], onDelete: Cascade)
+  artist Artist @relation(fields: [artistId], references: [id], onDelete: Cascade)
+
+  @@id([albumId, artistId])
+}
+
+model Song {
+  id String @id @default(uuid())
+
+  title   String
+  albumId String?
+  album   Album?  @relation(fields: [albumId], references: [id], onDelete: SetNull)
+
+  // Display-only name of the file the user uploaded.
+  originalFilename String
+  // Server-generated "<uuid>.m4a" name on disk after transcoding.
+  storedFilename String
+
+  durationSeconds Float?
+  coverImagePath  String?
+  fileSizeBytes   Int?
+
+  uploadedById String
+  uploadedBy   User   @relation(fields: [uploadedById], references: [id], onDelete: Cascade)
+
+  createdAt DateTime @default(now())
+
+  artists         SongArtist[]
+  playlistEntries PlaylistSong[]
+}
+
+model Playlist {
+  id   String @id @default(uuid())
+  name String
+
+  ownerId String
+  owner   User   @relation(fields: [ownerId], references: [id], onDelete: Cascade)
+
+  imageEnabled   Boolean @default(false)
+  coverImagePath String?
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  songs PlaylistSong[]
+}
+
+model PlaylistSong {
+  playlistId String
+  songId     String
+  sortOrder  Int
+
+  playlist Playlist @relation(fields: [playlistId], references: [id], onDelete: Cascade)
+  song     Song     @relation(fields: [songId], references: [id], onDelete: Cascade)
+
+  @@id([playlistId, songId])
+}
