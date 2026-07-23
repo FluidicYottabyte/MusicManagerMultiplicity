@@ -20,7 +20,7 @@ export interface UploadOverrides {
 export type UploadResult = { ok: true } | { ok: false; reason: string };
 
 export function isUploadableFile(value: unknown): value is File {
-  return value instanceof NodeFile && (value as File).size > 0;
+  return value instanceof NodeFile && value.size > 0;
 }
 
 export async function uploadSongFile(file: File, overrides: UploadOverrides, userId: string): Promise<UploadResult> {
