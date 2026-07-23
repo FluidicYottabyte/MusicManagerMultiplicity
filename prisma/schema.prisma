@@ -72,6 +72,9 @@ model Song {
   title   String
   albumId String?
   album   Album?  @relation(fields: [albumId], references: [id], onDelete: SetNull)
+  // Read from the file's metadata at upload time, when present, so album
+  // pages can show songs in actual track order instead of alphabetical.
+  trackNumber Int?
 
   // Display-only name of the file the user uploaded.
   originalFilename String

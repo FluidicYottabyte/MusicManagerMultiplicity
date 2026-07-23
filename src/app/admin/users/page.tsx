@@ -19,6 +19,9 @@ export default async function AdminUsersPage({ searchParams }: { searchParams: {
       <Link href="/admin/users/new" className="win-button">
         New User
       </Link>
+      <Link href="/admin/artists" className="win-button small">
+        Manage Artists
+      </Link>
 
       <table className="rows win-sunken">
         <tbody>

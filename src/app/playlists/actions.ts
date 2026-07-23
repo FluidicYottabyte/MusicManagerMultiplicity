@@ -156,6 +156,30 @@ async function addSongToPlaylistInternal(playlistId: string, songId: string): Pr
   }
 }
 
+/** Adds every song in songIds that isn't already in the playlist (e.g. "add whole album"), preserving the given order. */
+export async function quickAddSongsToPlaylist(playlistId: string, songIds: string[]): Promise<{ ok: boolean }> {
+  try {
+    await requireOwnerOrAdmin(playlistId);
+
+    const existing = await prisma.playlistSong.findMany({
+      where: { playlistId, songId: { in: songIds } },
+      select: { songId: true },
+    });
+    const alreadyPresent = new Set(existing.map((e) => e.songId));
+
+    let nextSortOrder = await prisma.playlistSong.count({ where: { playlistId } });
+    for (const songId of songIds) {
+      if (alreadyPresent.has(songId)) continue;
+      await prisma.playlistSong.create({ data: { playlistId, songId, sortOrder: nextSortOrder } });
+      nextSortOrder++;
+    }
+
+    return { ok: true };
+  } catch {
+    return { ok: false };
+  }
+}
+
 export async function removeSongFromPlaylist(playlistId: string, songId: string): Promise<void> {
   await requireOwnerOrAdmin(playlistId);
   await prisma.playlistSong.delete({ where: { playlistId_songId: { playlistId, songId } } });

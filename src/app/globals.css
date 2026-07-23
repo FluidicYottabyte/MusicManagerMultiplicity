@@ -404,6 +404,36 @@ table.rows img.thumb {
     margin-bottom: 10px;
 }
 
+/* ---- Album header ---- */
+
+.album-header {
+    display: flex;
+    gap: 16px;
+    align-items: flex-start;
+    margin-bottom: 14px;
+    flex-wrap: wrap;
+}
+
+.album-cover-large {
+    width: 200px;
+    height: 200px;
+    object-fit: cover;
+    border: 2px solid var(--border);
+    border-radius: var(--radius);
+    flex-shrink: 0;
+}
+
+.album-header h1 {
+    margin-bottom: 4px;
+}
+
+.album-actions {
+    margin-top: 10px;
+    display: flex;
+    gap: 6px;
+    flex-wrap: wrap;
+}
+
 /* ---- Share link box ---- */
 
 .share-link-box {

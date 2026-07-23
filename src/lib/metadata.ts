@@ -7,6 +7,7 @@ export interface ExtractedMetadata {
   title: string | null;
   artist: string | null;
   album: string | null;
+  trackNumber: number | null;
   durationSeconds: number | null;
   hasAudioStream: boolean;
 }
@@ -29,9 +30,19 @@ const empty: ExtractedMetadata = {
   title: null,
   artist: null,
   album: null,
+  trackNumber: null,
   durationSeconds: null,
   hasAudioStream: false,
 };
+
+/** Tags store this as "5", "05", or "5/12" (track 5 of 12) - only the leading number matters. */
+function parseTrackNumber(raw: string | undefined): number | null {
+  if (!raw) return null;
+  const match = /^\s*(\d+)/.exec(raw);
+  if (!match) return null;
+  const n = Number.parseInt(match[1]!, 10);
+  return Number.isFinite(n) ? n : null;
+}
 
 /** Runs ffprobe and extracts tags case-insensitively (files tag their metadata inconsistently: "Artist" vs "artist" vs "ARTIST"). */
 export async function probe(inputPath: string): Promise<ExtractedMetadata> {
@@ -68,6 +79,7 @@ export async function probe(inputPath: string): Promise<ExtractedMetadata> {
     title: tags.title ?? null,
     artist: tags.artist ?? null,
     album: tags.album ?? null,
+    trackNumber: parseTrackNumber(tags.track),
     durationSeconds: Number.isFinite(durationSeconds) ? durationSeconds : null,
     hasAudioStream,
   };

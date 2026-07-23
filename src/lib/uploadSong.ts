@@ -74,6 +74,7 @@ export async function uploadSongFile(file: File, overrides: UploadOverrides, use
         id: songId,
         title,
         albumId: album?.id,
+        trackNumber: metadata.trackNumber,
         originalFilename: file.name,
         storedFilename,
         durationSeconds: metadata.durationSeconds,
