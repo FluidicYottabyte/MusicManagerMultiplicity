@@ -39,12 +39,20 @@ sudo mkdir -p /opt/musicmanager
 # folder copied alongside it.
 #
 # IMPORTANT: .next/standalone/ includes a COPY of this checkout's .env,
-# bundled in at build time. rsync with --exclude=.env so this initial
-# copy (and every later redeploy) never clobbers the production .env
-# living at /opt/musicmanager/.env with the source checkout's dev values.
-sudo rsync -a --exclude='.env' .next/standalone/ /opt/musicmanager/
-sudo cp -r .next/static /opt/musicmanager/.next/static
-sudo cp -r public /opt/musicmanager/public
+# bundled in at build time. rsync with --exclude so this initial copy
+# (and every later redeploy) never clobbers the production .env living
+# at /opt/musicmanager/.env, or deletes the runtime storage/ directory
+# (uploaded audio, cover art, and the SQLite database) that only exists
+# in the destination, not in this build output.
+#
+# NEVER add --delete to this specific command - --delete removes
+# anything in the destination that isn't in the source, and storage/
+# and .env only exist in the destination. --delete is fine (and useful,
+# to clear stale hashed chunks from old builds) on .next/static and
+# public below, since those are pure build output with no runtime state.
+sudo rsync -a --exclude='.env' --exclude='storage/' .next/standalone/ /opt/musicmanager/
+sudo rsync -a --delete .next/static/ /opt/musicmanager/.next/static/
+sudo rsync -a --delete public/ /opt/musicmanager/public/
 sudo mkdir -p /opt/musicmanager/storage
 # Only do this ONCE, for the very first deploy - after that, .env lives
 # at /opt/musicmanager/.env and should be edited there directly, never
@@ -90,8 +98,10 @@ Obtain a TLS certificate first if you don't already have one (e.g. via
 - **Add a friend**: log in as an admin at `/admin/users` -> New User. There is
   no self-service sign-up anywhere in the app.
 - **Updating**: `git pull && npm install && npx prisma migrate deploy && npm run build`,
-  then redo step 3's copy commands (the `rsync --exclude='.env'` line, plus
-  the `.next/static` and `public` copies - skip the `.env` line entirely,
-  it's guarded to only run once anyway), `sudo systemctl restart musicmanager`.
+  then redo step 3's three `rsync` commands exactly as written there (skip
+  the `.env` line, it's guarded to only run once anyway),
+  `sudo systemctl restart musicmanager`. Never substitute a plain
+  `cp -r .../. .../` or add `--delete` to the standalone line - see the
+  warning comment in step 3 for why.
 - **Backups**: back up `/opt/musicmanager/storage/` (contains the SQLite
   database and every uploaded/transcoded audio file + cover image).
