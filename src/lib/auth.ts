@@ -22,12 +22,18 @@ export const authOptions: AuthOptions = {
         password: { label: "Password", type: "password" },
       },
       async authorize(credentials) {
-        if (!credentials?.username || !credentials.password) return null;
+        console.log("[auth] login attempt", { username: credentials?.username });
+        if (!credentials?.username || !credentials.password) {
+          console.log("[auth] missing username or password in request");
+          return null;
+        }
 
         const user = await prisma.user.findUnique({ where: { username: credentials.username } });
+        console.log("[auth] user found in DB?", !!user);
         if (!user) return null;
 
         const valid = await compare(credentials.password, user.passwordHash);
+        console.log("[auth] password compare result", valid);
         if (!valid) return null;
 
         return { id: user.id, name: user.username, isAdmin: user.isAdmin };
