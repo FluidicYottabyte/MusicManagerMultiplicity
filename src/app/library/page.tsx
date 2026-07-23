@@ -2,7 +2,9 @@
 export const dynamic = "force-dynamic";
 
 import { SongList } from "@/components/SongList";
+import { requireUser } from "@/lib/auth";
 import { prisma } from "@/lib/db";
+import { getEditablePlaylists } from "@/lib/editablePlaylists";
 import type { SongView } from "@/types/song";
 
 function coverUrl(songId: string, hasCover: boolean): string {
@@ -14,6 +16,7 @@ export default async function LibraryPage({
 }: {
   searchParams: { q?: string; uploaded?: string; failed?: string };
 }) {
+  const user = await requireUser();
   const q = searchParams.q?.trim() ?? "";
 
   const songs = await prisma.song.findMany({
@@ -24,17 +27,19 @@ export default async function LibraryPage({
   const views: SongView[] = songs.map((song) => ({
     id: song.id,
     title: song.title,
-    artistNames: song.artists.map((sa) => sa.artist.name).join(", "),
-    albumName: song.album?.name ?? null,
+    artists: song.artists.map((sa) => ({ id: sa.artist.id, name: sa.artist.name })),
+    album: song.album ? { id: song.album.id, name: song.album.name } : null,
     coverUrl: coverUrl(song.id, song.coverImagePath !== null),
   }));
 
   const filtered = q
     ? views.filter((v) => {
-        const haystack = `${v.title} ${v.artistNames} ${v.albumName ?? ""}`.toLowerCase();
+        const haystack = `${v.title} ${v.artists.map((a) => a.name).join(" ")} ${v.album?.name ?? ""}`.toLowerCase();
         return haystack.includes(q.toLowerCase());
       })
     : views;
+
+  const editablePlaylists = await getEditablePlaylists(user.id, user.isAdmin);
 
   return (
     <div>
@@ -52,7 +57,12 @@ export default async function LibraryPage({
           Search
         </button>
       </form>
-      <SongList songs={filtered} emptyMessage={q ? "No matching songs." : "No songs uploaded yet."} />
+      <SongList
+        songs={filtered}
+        emptyMessage={q ? "No matching songs." : "No songs uploaded yet."}
+        isAdmin={user.isAdmin}
+        editablePlaylists={editablePlaylists}
+      />
     </div>
   );
 }

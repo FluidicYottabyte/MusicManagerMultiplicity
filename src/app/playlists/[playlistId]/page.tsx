@@ -7,6 +7,7 @@ import { notFound } from "next/navigation";
 import { SongList } from "@/components/SongList";
 import { requireUser } from "@/lib/auth";
 import { prisma } from "@/lib/db";
+import { getEditablePlaylists } from "@/lib/editablePlaylists";
 import type { SongView } from "@/types/song";
 
 export default async function PlaylistDetailPage({ params }: { params: { playlistId: string } }) {
@@ -27,12 +28,13 @@ export default async function PlaylistDetailPage({ params }: { params: { playlis
   const songs: SongView[] = playlist.songs.map(({ song }) => ({
     id: song.id,
     title: song.title,
-    artistNames: song.artists.map((a) => a.artist.name).join(", "),
-    albumName: song.album?.name ?? null,
+    artists: song.artists.map((a) => ({ id: a.artist.id, name: a.artist.name })),
+    album: song.album ? { id: song.album.id, name: song.album.name } : null,
     coverUrl: song.coverImagePath ? `/api/covers/${song.id}` : "/images/default-cover.png",
   }));
 
   const canEdit = playlist.ownerId === user.id || user.isAdmin;
+  const editablePlaylists = await getEditablePlaylists(user.id, user.isAdmin);
 
   return (
     <div>
@@ -43,7 +45,12 @@ export default async function PlaylistDetailPage({ params }: { params: { playlis
           Edit
         </Link>
       )}
-      <SongList songs={songs} emptyMessage="This playlist is empty." />
+      <SongList
+        songs={songs}
+        emptyMessage="This playlist is empty."
+        isAdmin={user.isAdmin}
+        editablePlaylists={editablePlaylists}
+      />
     </div>
   );
 }

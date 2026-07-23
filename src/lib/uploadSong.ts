@@ -1,32 +1,29 @@
-"use server";
-
 import { File as NodeFile } from "node:buffer";
 import { randomUUID } from "node:crypto";
 import { rm, stat, writeFile } from "node:fs/promises";
 import path from "node:path";
 
-import { redirect } from "next/navigation";
-
-import { requireUser } from "@/lib/auth";
 import { attachAlbumArtistIfMissing, resolveAlbum, resolveArtistsFromCommaSeparated } from "@/lib/artistAlbumResolver";
 import { prisma } from "@/lib/db";
 import { probe } from "@/lib/metadata";
-import { ensureStorageDirectories, StoragePaths } from "@/lib/storage";
+import { StoragePaths } from "@/lib/storage";
 import { extractCoverArt, transcodeToAAC } from "@/lib/transcode";
 
 const ALLOWED_EXTENSIONS = new Set(["mp3", "m4a", "aac", "flac", "wav", "ogg", "aiff", "aif"]);
 
-function nonEmpty(value: FormDataEntryValue | null): string | null {
-  if (typeof value !== "string") return null;
-  const trimmed = value.trim();
-  return trimmed.length > 0 ? trimmed : null;
+export interface UploadOverrides {
+  title: string | null;
+  artistNames: string | null;
+  albumName: string | null;
 }
 
-async function uploadOne(
-  file: File,
-  overrides: { title: string | null; artistNames: string | null; albumName: string | null },
-  userId: string
-): Promise<{ ok: true } | { ok: false; reason: string }> {
+export type UploadResult = { ok: true } | { ok: false; reason: string };
+
+export function isUploadableFile(value: unknown): value is File {
+  return value instanceof NodeFile && (value as File).size > 0;
+}
+
+export async function uploadSongFile(file: File, overrides: UploadOverrides, userId: string): Promise<UploadResult> {
   const ext = path.extname(file.name).slice(1).toLowerCase();
   if (!ALLOWED_EXTENSIONS.has(ext)) {
     return { ok: false, reason: `Unsupported file type: ${file.name}` };
@@ -97,48 +94,4 @@ async function uploadOne(
   } finally {
     await rm(tmpInputPath, { force: true });
   }
-}
-
-export async function uploadSong(formData: FormData): Promise<void> {
-  const user = await requireUser();
-
-  const files = formData.getAll("file").filter((f): f is File => f instanceof NodeFile && f.size > 0);
-  if (files.length === 0) {
-    redirect("/upload?error=Please+choose+at+least+one+file+or+folder");
-  }
-
-  await ensureStorageDirectories();
-
-  // Manual title/artist/album overrides only make sense for a single file;
-  // for a batch upload every song would otherwise get the same title.
-  const overrides =
-    files.length === 1
-      ? {
-          title: nonEmpty(formData.get("title")),
-          artistNames: nonEmpty(formData.get("artistNames")),
-          albumName: nonEmpty(formData.get("albumName")),
-        }
-      : { title: null, artistNames: null, albumName: null };
-
-  let succeeded = 0;
-  const failures: string[] = [];
-
-  for (const file of files) {
-    const result = await uploadOne(file, overrides, user.id);
-    if (result.ok) {
-      succeeded++;
-    } else {
-      failures.push(result.reason);
-    }
-  }
-
-  if (succeeded === 0) {
-    redirect(`/upload?error=${encodeURIComponent(failures[0] ?? "Upload failed")}`);
-  }
-
-  const params = new URLSearchParams({ uploaded: String(succeeded) });
-  if (failures.length > 0) {
-    params.set("failed", String(failures.length));
-  }
-  redirect(`/library?${params.toString()}`);
 }

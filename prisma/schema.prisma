@@ -28,8 +28,9 @@ model User {
 }
 
 model Artist {
-  id   String @id @default(uuid())
-  name String
+  id        String  @id @default(uuid())
+  name      String
+  photoPath String?
 
   songs  SongArtist[]
   albums AlbumArtist[]

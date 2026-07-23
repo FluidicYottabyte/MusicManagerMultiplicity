@@ -1,5 +1,6 @@
 "use server";
 
+import { compare, hash } from "bcryptjs";
 import { redirect } from "next/navigation";
 
 import { requireUser } from "@/lib/auth";
@@ -31,6 +32,31 @@ export async function saveSettings(formData: FormData): Promise<void> {
       themeAccentForeground: accentForeground,
     },
   });
+
+  redirect("/settings?saved=1");
+}
+
+export async function changePassword(formData: FormData): Promise<void> {
+  const sessionUser = await requireUser();
+  const user = await prisma.user.findUniqueOrThrow({ where: { id: sessionUser.id } });
+
+  const currentPassword = String(formData.get("currentPassword") ?? "");
+  const newPassword = String(formData.get("newPassword") ?? "");
+  const confirmPassword = String(formData.get("confirmPassword") ?? "");
+
+  const currentValid = await compare(currentPassword, user.passwordHash);
+  if (!currentValid) {
+    redirect("/settings?error=Current+password+is+incorrect");
+  }
+  if (newPassword.length < 8) {
+    redirect("/settings?error=New+password+must+be+at+least+8+characters");
+  }
+  if (newPassword !== confirmPassword) {
+    redirect("/settings?error=New+passwords+did+not+match");
+  }
+
+  const passwordHash = await hash(newPassword, 12);
+  await prisma.user.update({ where: { id: user.id }, data: { passwordHash } });
 
   redirect("/settings?saved=1");
 }

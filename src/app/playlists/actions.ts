@@ -83,6 +83,25 @@ export async function deletePlaylist(playlistId: string): Promise<void> {
 }
 
 export async function addSongToPlaylist(playlistId: string, songId: string): Promise<void> {
+  await addSongToPlaylistInternal(playlistId, songId);
+  redirect(`/playlists/${playlistId}/edit`);
+}
+
+/**
+ * Same as addSongToPlaylist but returns instead of redirecting, for the
+ * "quick add" button on song rows elsewhere in the app (library, artist,
+ * album, playlist-detail pages) that shouldn't navigate away.
+ */
+export async function quickAddSongToPlaylist(playlistId: string, songId: string): Promise<{ ok: boolean }> {
+  try {
+    await addSongToPlaylistInternal(playlistId, songId);
+    return { ok: true };
+  } catch {
+    return { ok: false };
+  }
+}
+
+async function addSongToPlaylistInternal(playlistId: string, songId: string): Promise<void> {
   await requireOwnerOrAdmin(playlistId);
 
   const alreadyPresent = await prisma.playlistSong.findUnique({
@@ -92,8 +111,6 @@ export async function addSongToPlaylist(playlistId: string, songId: string): Pro
     const existingCount = await prisma.playlistSong.count({ where: { playlistId } });
     await prisma.playlistSong.create({ data: { playlistId, songId, sortOrder: existingCount } });
   }
-
-  redirect(`/playlists/${playlistId}/edit`);
 }
 
 export async function removeSongFromPlaylist(playlistId: string, songId: string): Promise<void> {

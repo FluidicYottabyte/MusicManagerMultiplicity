@@ -5,7 +5,7 @@ import { requireUser } from "@/lib/auth";
 import { prisma } from "@/lib/db";
 import { paletteForUser } from "@/lib/theme";
 
-import { resetSettings, saveSettings } from "./actions";
+import { changePassword, resetSettings, saveSettings } from "./actions";
 
 export default async function SettingsPage({ searchParams }: { searchParams: { error?: string; saved?: string } }) {
   const sessionUser = await requireUser();
@@ -43,6 +43,22 @@ export default async function SettingsPage({ searchParams }: { searchParams: { e
         </button>
         <button type="submit" formAction={resetSettings} className="win-button">
           Reset to Defaults
+        </button>
+      </form>
+
+      <form action={changePassword} className="win-panel win-raised">
+        <h3>Change Password</h3>
+        <label htmlFor="currentPassword">Current password</label>
+        <input id="currentPassword" type="password" name="currentPassword" autoComplete="current-password" required />
+
+        <label htmlFor="newPassword">New password (min 8 characters)</label>
+        <input id="newPassword" type="password" name="newPassword" autoComplete="new-password" minLength={8} required />
+
+        <label htmlFor="confirmPassword">Confirm new password</label>
+        <input id="confirmPassword" type="password" name="confirmPassword" autoComplete="new-password" minLength={8} required />
+
+        <button type="submit" className="win-button">
+          Change Password
         </button>
       </form>
     </div>

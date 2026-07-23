@@ -22,7 +22,9 @@ export function PlayerBar() {
         src={current?.coverUrl ?? "/images/default-cover.png"}
         alt=""
       />
-      <div className="now-playing-text">{current ? `${current.title} — ${current.artistNames}` : "Nothing playing"}</div>
+      <div className="now-playing-text">
+        {current ? `${current.title} — ${current.artists.map((a) => a.name).join(", ")}` : "Nothing playing"}
+      </div>
       <div className="transport">
         <button type="button" className="win-button small" onClick={prev} disabled={!current} aria-label="Previous">
           |&lt;

@@ -26,7 +26,7 @@ export default async function ArtistsPage() {
       <div className="card-grid">
         {artists.map((artist) => (
           <Link key={artist.id} href={`/artists/${artist.id}`} className="card">
-            <img src="/images/default-cover.png" alt="" />
+            <img src={artist.photoPath ? `/api/artist-photos/${artist.id}` : "/images/default-cover.png"} alt="" />
             <div className="name">{artist.name}</div>
             <div>{artist.songs.length} song{artist.songs.length === 1 ? "" : "s"}</div>
           </Link>
