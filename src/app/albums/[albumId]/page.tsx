@@ -10,7 +10,9 @@ import { prisma } from "@/lib/db";
 import { getEditablePlaylists } from "@/lib/editablePlaylists";
 import type { SongView } from "@/types/song";
 
+import { reorderAlbumSongs } from "../actions";
 import { AlbumActions } from "./AlbumActions";
+import { DeleteAlbumButton } from "./DeleteAlbumButton";
 
 export default async function AlbumDetailPage({ params }: { params: { albumId: string } }) {
   const user = await requireUser();
@@ -56,13 +58,16 @@ export default async function AlbumDetailPage({ params }: { params: { albumId: s
             ))}
           </p>
           <AlbumActions songs={songs} editablePlaylists={editablePlaylists} />
+          {user.isAdmin && <DeleteAlbumButton albumId={album.id} />}
         </div>
       </div>
+      {user.isAdmin && songs.length > 1 && <p>Drag the ⠿ handle to reorder songs within this album.</p>}
       <SongList
         songs={songs}
         emptyMessage="No songs in this album."
         isAdmin={user.isAdmin}
         editablePlaylists={editablePlaylists}
+        onReorder={user.isAdmin ? reorderAlbumSongs.bind(null, album.id) : undefined}
       />
     </div>
   );

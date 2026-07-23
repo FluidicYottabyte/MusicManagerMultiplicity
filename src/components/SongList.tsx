@@ -14,13 +14,16 @@ interface SongListProps {
   emptyMessage?: string;
   isAdmin?: boolean;
   editablePlaylists?: PlaylistRef[];
+  /** When provided, rows get a drag handle; dropping calls this with the full new song-id order to persist. */
+  onReorder?: (orderedSongIds: string[]) => void;
 }
 
-export function SongList({ songs: initialSongs, emptyMessage, isAdmin, editablePlaylists }: SongListProps) {
+export function SongList({ songs: initialSongs, emptyMessage, isAdmin, editablePlaylists, onReorder }: SongListProps) {
   const { playQueue, current } = usePlayer();
   const [songs, setSongs] = useState(initialSongs);
   const [openMenuFor, setOpenMenuFor] = useState<string | null>(null);
   const [addedTo, setAddedTo] = useState<Set<string>>(new Set());
+  const [draggedIndex, setDraggedIndex] = useState<number | null>(null);
 
   useEffect(() => setSongs(initialSongs), [initialSongs]);
 
@@ -43,12 +46,40 @@ export function SongList({ songs: initialSongs, emptyMessage, isAdmin, editableP
     }
   }
 
+  function handleDrop(dropIndex: number) {
+    if (draggedIndex === null || draggedIndex === dropIndex || !onReorder) {
+      setDraggedIndex(null);
+      return;
+    }
+    const reordered = [...songs];
+    const [moved] = reordered.splice(draggedIndex, 1);
+    reordered.splice(dropIndex, 0, moved!);
+    setSongs(reordered);
+    setDraggedIndex(null);
+    onReorder(reordered.map((s) => s.id));
+  }
+
   return (
     <div className="win-sunken song-list">
       <table className="rows">
         <tbody>
           {songs.map((song, index) => (
-            <tr key={song.id} className={current?.id === song.id ? "selected" : undefined}>
+            <tr
+              key={song.id}
+              className={current?.id === song.id ? "selected" : undefined}
+              onDragOver={onReorder ? (e) => e.preventDefault() : undefined}
+              onDrop={onReorder ? () => handleDrop(index) : undefined}
+            >
+              {onReorder && (
+                <td
+                  className="drag-handle"
+                  draggable
+                  onDragStart={() => setDraggedIndex(index)}
+                  onDragEnd={() => setDraggedIndex(null)}
+                >
+                  ⠿
+                </td>
+              )}
               <td
                 onClick={() => {
                   playQueue(songs, index);

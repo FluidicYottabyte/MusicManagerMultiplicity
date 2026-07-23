@@ -374,6 +374,17 @@ table.rows img.thumb {
     white-space: nowrap;
 }
 
+.drag-handle {
+    cursor: grab;
+    text-align: center;
+    color: var(--border);
+    width: 20px;
+}
+
+.drag-handle:active {
+    cursor: grabbing;
+}
+
 .playlist-popover {
     position: absolute;
     right: 0;
