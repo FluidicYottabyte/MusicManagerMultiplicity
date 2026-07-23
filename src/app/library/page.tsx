@@ -1,3 +1,6 @@
+// This page always reflects live, per-user session and DB state - never statically pre-render it.
+export const dynamic = "force-dynamic";
+
 import { SongList } from "@/components/SongList";
 import { prisma } from "@/lib/db";
 import type { SongView } from "@/types/song";

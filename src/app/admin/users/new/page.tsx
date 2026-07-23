@@ -1,3 +1,6 @@
+// This page always reflects live, per-user session and DB state - never statically pre-render it.
+export const dynamic = "force-dynamic";
+
 import { createUser } from "../actions";
 
 export default function NewUserPage({ searchParams }: { searchParams: { error?: string } }) {

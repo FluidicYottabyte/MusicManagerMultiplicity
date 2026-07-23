@@ -1,3 +1,6 @@
+// This page always reflects live, per-user session and DB state - never statically pre-render it.
+export const dynamic = "force-dynamic";
+
 import { createPlaylist } from "../actions";
 
 export default function NewPlaylistPage({ searchParams }: { searchParams: { error?: string } }) {

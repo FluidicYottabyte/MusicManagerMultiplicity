@@ -1,3 +1,6 @@
+// This page always reflects live, per-user session and DB state - never statically pre-render it.
+export const dynamic = "force-dynamic";
+
 import Link from "next/link";
 
 import { requireUser } from "@/lib/auth";
