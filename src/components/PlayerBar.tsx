@@ -1,5 +1,7 @@
 "use client";
 
+import { useEffect, useRef, useState } from "react";
+
 import { usePlayer } from "@/components/PlayerProvider";
 
 function formatTime(seconds: number): string {
@@ -13,6 +15,24 @@ export function PlayerBar() {
   const { current, isPlaying, shuffleEnabled, volume, currentTime, duration, togglePlay, next, prev, seekTo, setVolume, toggleShuffle } =
     usePlayer();
 
+  const nowPlayingContainerRef = useRef<HTMLDivElement>(null);
+  const nowPlayingTextRef = useRef<HTMLSpanElement>(null);
+  const [isOverflowing, setIsOverflowing] = useState(false);
+
+  const nowPlayingLabel = current
+    ? `${current.title} — ${current.artists.map((a) => a.name).join(", ")}`
+    : "Nothing playing";
+
+  useEffect(() => {
+    const container = nowPlayingContainerRef.current;
+    const text = nowPlayingTextRef.current;
+    if (!container || !text) {
+      setIsOverflowing(false);
+      return;
+    }
+    setIsOverflowing(text.scrollWidth > container.clientWidth);
+  }, [nowPlayingLabel]);
+
   const progress = duration > 0 ? currentTime / duration : 0;
 
   return (
@@ -22,8 +42,10 @@ export function PlayerBar() {
         src={current?.coverUrl ?? "/images/default-cover.png"}
         alt=""
       />
-      <div className="now-playing-text">
-        {current ? `${current.title} — ${current.artists.map((a) => a.name).join(", ")}` : "Nothing playing"}
+      <div className="now-playing-text" ref={nowPlayingContainerRef}>
+        <span ref={nowPlayingTextRef} className={isOverflowing ? "marquee" : undefined}>
+          {nowPlayingLabel}
+        </span>
       </div>
       <div className="transport">
         <button type="button" className="win-button small" onClick={prev} disabled={!current} aria-label="Previous">

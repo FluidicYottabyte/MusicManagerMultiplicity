@@ -285,12 +285,27 @@ table.rows img.thumb {
 }
 
 #player-bar .now-playing-text {
-    min-width: 140px;
-    max-width: 220px;
+    width: 200px;
     overflow: hidden;
-    text-overflow: ellipsis;
     white-space: nowrap;
     flex-shrink: 0;
+}
+
+#player-bar .now-playing-text span {
+    display: inline-block;
+}
+
+#player-bar .now-playing-text span.marquee {
+    animation: now-playing-marquee 8s linear infinite;
+}
+
+@keyframes now-playing-marquee {
+    0%, 15% {
+        transform: translateX(0);
+    }
+    85%, 100% {
+        transform: translateX(calc(-100% + 200px));
+    }
 }
 
 #player-bar .transport {
