@@ -20,6 +20,11 @@ export default function NewPlaylistPage({ searchParams }: { searchParams: { erro
         <label htmlFor="coverImage">Cover image (optional)</label>
         <input id="coverImage" type="file" name="coverImage" accept=".png,.jpg,.jpeg,.gif" />
 
+        <label htmlFor="isPublic">
+          <input id="isPublic" type="checkbox" name="isPublic" defaultChecked style={{ width: "auto", marginRight: 6 }} />
+          Public (visible to everyone; uncheck to make it private, visible only to you)
+        </label>
+
         <button type="submit" className="win-button">
           Create
         </button>

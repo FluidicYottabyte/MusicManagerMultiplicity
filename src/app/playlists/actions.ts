@@ -40,6 +40,7 @@ export async function createPlaylist(formData: FormData): Promise<void> {
   if (!name) redirect("/playlists/new?error=Name+is+required");
 
   const imageEnabled = formData.get("imageEnabled") === "on";
+  const isPublic = formData.get("isPublic") === "on";
   const file = formData.get("coverImage");
 
   let coverImagePath: string | null = null;
@@ -48,7 +49,7 @@ export async function createPlaylist(formData: FormData): Promise<void> {
   }
 
   const playlist = await prisma.playlist.create({
-    data: { name, ownerId: user.id, imageEnabled, coverImagePath },
+    data: { name, ownerId: user.id, imageEnabled, coverImagePath, isPublic },
   });
 
   redirect(`/playlists/${playlist.id}`);
@@ -61,6 +62,7 @@ export async function updatePlaylist(playlistId: string, formData: FormData): Pr
   if (!name) redirect(`/playlists/${playlistId}/edit?error=Name+is+required`);
 
   const imageEnabled = formData.get("imageEnabled") === "on";
+  const isPublic = formData.get("isPublic") === "on";
   const file = formData.get("coverImage");
 
   let coverImagePath = playlist.coverImagePath;
@@ -70,10 +72,51 @@ export async function updatePlaylist(playlistId: string, formData: FormData): Pr
 
   await prisma.playlist.update({
     where: { id: playlistId },
-    data: { name, imageEnabled, coverImagePath },
+    data: { name, imageEnabled, coverImagePath, isPublic },
   });
 
   redirect(`/playlists/${playlistId}`);
+}
+
+/** Lazily generates and persists a share token the first time it's requested, so old rows don't need a migration backfill. */
+export async function getOrCreateShareLink(playlistId: string): Promise<{ token: string }> {
+  const { playlist } = await requireOwnerOrAdmin(playlistId);
+  if (playlist.shareToken) return { token: playlist.shareToken };
+
+  const token = randomUUID();
+  await prisma.playlist.update({ where: { id: playlistId }, data: { shareToken: token } });
+  return { token };
+}
+
+/**
+ * Copies a shared playlist (found by its unguessable token, regardless of
+ * its isPublic/ownership) into a brand new private playlist owned by the
+ * current user. The original and the copy are entirely independent from
+ * that point on - editing one never affects the other.
+ */
+export async function cloneSharedPlaylist(shareToken: string): Promise<void> {
+  const user = await requireUser();
+
+  const source = await prisma.playlist.findUnique({
+    where: { shareToken },
+    include: { songs: { orderBy: { sortOrder: "asc" } } },
+  });
+  if (!source) {
+    redirect(`/playlists/shared/${shareToken}?error=This+share+link+is+no+longer+valid`);
+  }
+
+  const copy = await prisma.playlist.create({
+    data: {
+      name: source.name,
+      ownerId: user.id,
+      isPublic: false,
+      songs: {
+        create: source.songs.map((s) => ({ songId: s.songId, sortOrder: s.sortOrder })),
+      },
+    },
+  });
+
+  redirect(`/playlists/${copy.id}`);
 }
 
 export async function deletePlaylist(playlistId: string): Promise<void> {

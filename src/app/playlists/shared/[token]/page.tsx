@@ -1,19 +1,26 @@
 // This page always reflects live, per-user session and DB state - never statically pre-render it.
 export const dynamic = "force-dynamic";
 
-import Link from "next/link";
 import { notFound } from "next/navigation";
 
 import { SongList } from "@/components/SongList";
 import { requireUser } from "@/lib/auth";
 import { prisma } from "@/lib/db";
-import { getEditablePlaylists } from "@/lib/editablePlaylists";
 import type { SongView } from "@/types/song";
 
-export default async function PlaylistDetailPage({ params }: { params: { playlistId: string } }) {
-  const user = await requireUser();
+import { cloneSharedPlaylist } from "../../actions";
+
+export default async function SharedPlaylistPage({
+  params,
+  searchParams,
+}: {
+  params: { token: string };
+  searchParams: { error?: string };
+}) {
+  await requireUser();
+
   const playlist = await prisma.playlist.findUnique({
-    where: { id: params.playlistId },
+    where: { shareToken: params.token },
     include: {
       owner: true,
       songs: {
@@ -24,7 +31,6 @@ export default async function PlaylistDetailPage({ params }: { params: { playlis
   });
 
   if (!playlist) notFound();
-  if (!playlist.isPublic && playlist.ownerId !== user.id && !user.isAdmin) notFound();
 
   const songs: SongView[] = playlist.songs.map(({ song }) => ({
     id: song.id,
@@ -34,24 +40,20 @@ export default async function PlaylistDetailPage({ params }: { params: { playlis
     coverUrl: song.coverImagePath ? `/api/covers/${song.id}` : "/images/default-cover.png",
   }));
 
-  const canEdit = playlist.ownerId === user.id || user.isAdmin;
-  const editablePlaylists = await getEditablePlaylists(user.id, user.isAdmin);
+  const boundClone = cloneSharedPlaylist.bind(null, params.token);
 
   return (
     <div>
       <h1>{playlist.name}</h1>
-      <p>by {playlist.owner.username}</p>
-      {canEdit && (
-        <Link href={`/playlists/${playlist.id}/edit`} className="win-button small">
-          Edit
-        </Link>
-      )}
-      <SongList
-        songs={songs}
-        emptyMessage="This playlist is empty."
-        isAdmin={user.isAdmin}
-        editablePlaylists={editablePlaylists}
-      />
+      <p>Shared by {playlist.owner.username}</p>
+      {searchParams.error && <div className="error-message">{searchParams.error.replace(/\+/g, " ")}</div>}
+      <form action={boundClone} className="win-panel win-raised">
+        <p>Add a private copy of this playlist to your own account. Changes to either copy won&apos;t affect the other.</p>
+        <button type="submit" className="win-button">
+          Add to My Playlists
+        </button>
+      </form>
+      <SongList songs={songs} emptyMessage="This playlist is empty." />
     </div>
   );
 }

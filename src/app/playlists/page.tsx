@@ -9,6 +9,7 @@ import { prisma } from "@/lib/db";
 export default async function PlaylistsPage() {
   const user = await requireUser();
   const playlists = await prisma.playlist.findMany({
+    where: user.isAdmin ? {} : { OR: [{ isPublic: true }, { ownerId: user.id }] },
     include: { owner: true, songs: true },
     orderBy: { name: "asc" },
   });
@@ -38,6 +39,7 @@ export default async function PlaylistsPage() {
                 <div>
                   {playlist.songs.length} song{playlist.songs.length === 1 ? "" : "s"}
                   {canEdit ? " · editable" : ""}
+                  {!playlist.isPublic ? " · private" : ""}
                 </div>
               </Link>
             );

@@ -101,6 +101,13 @@ model Playlist {
   imageEnabled   Boolean @default(false)
   coverImagePath String?
 
+  // Private playlists are hidden from the /playlists list for everyone
+  // except the owner/an admin. shareToken is nullable and generated
+  // lazily on first "Get Share Link" click rather than at creation, so
+  // existing rows don't need a backfill migration.
+  isPublic   Boolean @default(true)
+  shareToken String? @unique
+
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 

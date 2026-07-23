@@ -14,6 +14,7 @@ import {
   removeSongFromPlaylist,
   updatePlaylist,
 } from "../../actions";
+import { ShareLinkButton } from "./ShareLinkButton";
 
 export default async function EditPlaylistPage({
   params,
@@ -67,10 +68,27 @@ export default async function EditPlaylistPage({
         <label htmlFor="coverImage">Replace cover image (optional)</label>
         <input id="coverImage" type="file" name="coverImage" accept=".png,.jpg,.jpeg,.gif" />
 
+        <label htmlFor="isPublic">
+          <input
+            id="isPublic"
+            type="checkbox"
+            name="isPublic"
+            defaultChecked={playlist.isPublic}
+            style={{ width: "auto", marginRight: 6 }}
+          />
+          Public (visible to everyone; uncheck to make it private, visible only to you)
+        </label>
+
         <button type="submit" className="win-button">
           Save
         </button>
       </form>
+
+      <div className="win-panel win-raised">
+        <h3>Share</h3>
+        <p>Anyone with this link can view the playlist and add their own private copy of it, whether or not it&apos;s public.</p>
+        <ShareLinkButton playlistId={playlist.id} />
+      </div>
 
       <form action={deletePlaylist.bind(null, playlist.id)} className="win-panel win-raised">
         <button type="submit" className="win-button special">

@@ -403,3 +403,17 @@ table.rows img.thumb {
     display: block;
     margin-bottom: 10px;
 }
+
+/* ---- Share link box ---- */
+
+.share-link-box {
+    display: flex;
+    gap: 6px;
+    align-items: center;
+    padding: 6px;
+    margin-top: 6px;
+}
+
+.share-link-box input {
+    flex: 1;
+}
