@@ -37,11 +37,19 @@ sudo mkdir -p /opt/musicmanager
 # `output: "standalone"` in next.config.js produces a self-contained server
 # bundle in .next/standalone, which needs the static assets and public/
 # folder copied alongside it.
-sudo cp -r .next/standalone/. /opt/musicmanager/
+#
+# IMPORTANT: .next/standalone/ includes a COPY of this checkout's .env,
+# bundled in at build time. rsync with --exclude=.env so this initial
+# copy (and every later redeploy) never clobbers the production .env
+# living at /opt/musicmanager/.env with the source checkout's dev values.
+sudo rsync -a --exclude='.env' .next/standalone/ /opt/musicmanager/
 sudo cp -r .next/static /opt/musicmanager/.next/static
 sudo cp -r public /opt/musicmanager/public
-sudo cp .env /opt/musicmanager/.env
 sudo mkdir -p /opt/musicmanager/storage
+# Only do this ONCE, for the very first deploy - after that, .env lives
+# at /opt/musicmanager/.env and should be edited there directly, never
+# recopied from the source checkout.
+[ -f /opt/musicmanager/.env ] || sudo cp .env /opt/musicmanager/.env
 sudo chown -R musicmanager:musicmanager /opt/musicmanager
 ```
 
@@ -82,6 +90,8 @@ Obtain a TLS certificate first if you don't already have one (e.g. via
 - **Add a friend**: log in as an admin at `/admin/users` -> New User. There is
   no self-service sign-up anywhere in the app.
 - **Updating**: `git pull && npm install && npx prisma migrate deploy && npm run build`,
-  redo step 3's copy, `sudo systemctl restart musicmanager`.
+  then redo step 3's copy commands (the `rsync --exclude='.env'` line, plus
+  the `.next/static` and `public` copies - skip the `.env` line entirely,
+  it's guarded to only run once anyway), `sudo systemctl restart musicmanager`.
 - **Backups**: back up `/opt/musicmanager/storage/` (contains the SQLite
   database and every uploaded/transcoded audio file + cover image).
