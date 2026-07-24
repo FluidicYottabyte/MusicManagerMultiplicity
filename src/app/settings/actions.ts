@@ -61,6 +61,24 @@ export async function changePassword(formData: FormData): Promise<void> {
   redirect("/settings?saved=1");
 }
 
+export async function changeUsername(formData: FormData): Promise<void> {
+  const user = await requireUser();
+
+  const newUsername = String(formData.get("newUsername") ?? "").trim();
+  if (!newUsername) {
+    redirect("/settings?error=Username+cannot+be+empty");
+  }
+
+  const existing = await prisma.user.findUnique({ where: { username: newUsername } });
+  if (existing && existing.id !== user.id) {
+    redirect("/settings?error=That+username+is+already+taken");
+  }
+
+  await prisma.user.update({ where: { id: user.id }, data: { username: newUsername } });
+
+  redirect("/settings?saved=1");
+}
+
 export async function resetSettings(): Promise<void> {
   const user = await requireUser();
 

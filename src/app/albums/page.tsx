@@ -5,37 +5,46 @@ import Link from "next/link";
 
 import { prisma } from "@/lib/db";
 
-export default async function AlbumsPage() {
-  const albums = await prisma.album.findMany({
+export default async function AlbumsPage({ searchParams }: { searchParams: { q?: string } }) {
+  const q = searchParams.q?.trim() ?? "";
+
+  const allAlbums = await prisma.album.findMany({
     include: { songs: true },
     orderBy: { name: "asc" },
   });
 
-  if (albums.length === 0) {
-    return (
-      <div>
-        <h1>Albums</h1>
-        <p>No albums yet — upload some songs first.</p>
-      </div>
-    );
-  }
+  const albums = q ? allAlbums.filter((a) => a.name.toLowerCase().includes(q.toLowerCase())) : allAlbums;
 
   return (
     <div>
       <h1>Albums</h1>
-      <div className="card-grid">
-        {albums.map((album) => {
-          const firstWithCover = album.songs.find((s) => s.coverImagePath !== null);
-          const coverUrl = firstWithCover ? `/api/covers/${firstWithCover.id}` : "/images/default-cover.png";
-          return (
-            <Link key={album.id} href={`/albums/${album.id}`} className="card">
-              <img src={coverUrl} alt="" />
-              <div className="name">{album.name}</div>
-              <div>{album.songs.length} song{album.songs.length === 1 ? "" : "s"}</div>
-            </Link>
-          );
-        })}
-      </div>
+      <form method="GET" className="win-panel win-raised">
+        <label htmlFor="q">Search</label>
+        <input id="q" name="q" type="search" defaultValue={q} placeholder="Album name" />
+        <button type="submit" className="win-button small">
+          Search
+        </button>
+      </form>
+
+      {albums.length === 0 ? (
+        <p>{q ? "No matching albums." : "No albums yet — upload some songs first."}</p>
+      ) : (
+        <div className="card-grid">
+          {albums.map((album) => {
+            const firstWithCover = album.songs.find((s) => s.coverImagePath !== null);
+            const coverUrl = firstWithCover ? `/api/covers/${firstWithCover.id}` : "/images/default-cover.png";
+            return (
+              <Link key={album.id} href={`/albums/${album.id}`} className="card">
+                <img src={coverUrl} alt="" />
+                <div className="name">{album.name}</div>
+                <div>
+                  {album.songs.length} song{album.songs.length === 1 ? "" : "s"}
+                </div>
+              </Link>
+            );
+          })}
+        </div>
+      )}
     </div>
   );
 }

@@ -355,6 +355,40 @@ table.rows img.thumb {
     accent-color: var(--fg);
 }
 
+.upload-pending-list {
+    padding: 8px;
+    margin: 10px 0;
+}
+
+.upload-pending-summary {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.upload-pending-list ul {
+    list-style: none;
+    margin: 6px 0 0 0;
+    padding: 0;
+    max-height: 160px;
+    overflow-y: auto;
+}
+
+.upload-pending-list li {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 8px;
+    padding: 2px 4px;
+    border-bottom: 1px solid #e7d9b8;
+}
+
+.upload-pending-list li span {
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
 /* ---- Song row action buttons + add-to-playlist popover ---- */
 
 .song-row-links {

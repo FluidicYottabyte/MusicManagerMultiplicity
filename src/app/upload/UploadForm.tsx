@@ -5,7 +5,9 @@ import { useRef, useState } from "react";
 
 // webkitdirectory/directory aren't in React's DOM typings but are
 // widely-supported non-standard attributes that let a folder be chosen
-// as if every file inside it had been multi-selected.
+// as if every file inside it had been multi-selected. Browsers can only
+// select one folder per dialog, so "multiple folders" works by adding
+// them one at a time into a staging list below.
 const folderInputProps = { webkitdirectory: "", directory: "" } as React.InputHTMLAttributes<HTMLInputElement>;
 
 interface UploadStatus {
@@ -55,31 +57,33 @@ function uploadOneFile(
 
 export function UploadForm() {
   const router = useRouter();
-  const filesInputRef = useRef<HTMLInputElement>(null);
-  const folderInputRef = useRef<HTMLInputElement>(null);
   const titleRef = useRef<HTMLInputElement>(null);
   const artistRef = useRef<HTMLInputElement>(null);
   const albumRef = useRef<HTMLInputElement>(null);
 
+  const [pendingFiles, setPendingFiles] = useState<File[]>([]);
   const [status, setStatus] = useState<UploadStatus | null>(null);
   const [error, setError] = useState<string | null>(null);
 
-  async function handleSubmit(e: React.FormEvent) {
-    e.preventDefault();
+  function addFiles(fileList: FileList | null) {
+    if (!fileList || fileList.length === 0) return;
+    setPendingFiles((prev) => [...prev, ...Array.from(fileList)]);
     setError(null);
+  }
 
-    const files: File[] = [
-      ...(filesInputRef.current?.files ? Array.from(filesInputRef.current.files) : []),
-      ...(folderInputRef.current?.files ? Array.from(folderInputRef.current.files) : []),
-    ];
+  function removePending(index: number) {
+    setPendingFiles((prev) => prev.filter((_, i) => i !== index));
+  }
 
-    if (files.length === 0) {
-      setError("Please choose at least one file or folder.");
+  async function handleUpload() {
+    setError(null);
+    if (pendingFiles.length === 0) {
+      setError("Add at least one file or folder first.");
       return;
     }
 
     const overrides =
-      files.length === 1
+      pendingFiles.length === 1
         ? {
             title: titleRef.current?.value.trim() ?? "",
             artistNames: artistRef.current?.value.trim() ?? "",
@@ -89,10 +93,17 @@ export function UploadForm() {
 
     let succeeded = 0;
     let failed = 0;
-    setStatus({ currentIndex: 0, total: files.length, currentFileName: files[0]!.name, currentFileProgress: 0, succeeded, failed });
+    setStatus({
+      currentIndex: 0,
+      total: pendingFiles.length,
+      currentFileName: pendingFiles[0]!.name,
+      currentFileProgress: 0,
+      succeeded,
+      failed,
+    });
 
-    for (let i = 0; i < files.length; i++) {
-      const file = files[i]!;
+    for (let i = 0; i < pendingFiles.length; i++) {
+      const file = pendingFiles[i]!;
       setStatus((s) => (s ? { ...s, currentIndex: i, currentFileName: file.name, currentFileProgress: 0 } : s));
 
       const result = await uploadOneFile(file, overrides, (pct) => {
@@ -113,21 +124,60 @@ export function UploadForm() {
   }
 
   const uploading = status !== null;
+  const totalSizeMB = (pendingFiles.reduce((sum, f) => sum + f.size, 0) / (1024 * 1024)).toFixed(1);
 
   return (
-    <form onSubmit={handleSubmit} className="win-panel win-raised">
-      <label htmlFor="files">Audio file(s)</label>
+    <div className="win-panel win-raised">
+      <label htmlFor="files">Add file(s)</label>
       <input
         id="files"
         type="file"
-        ref={filesInputRef}
         accept=".mp3,.m4a,.aac,.flac,.wav,.ogg,.aiff,.aif"
         multiple
         disabled={uploading}
+        onChange={(e) => {
+          addFiles(e.target.files);
+          e.target.value = "";
+        }}
       />
 
-      <label htmlFor="folder">...or choose an entire folder (any non-audio files inside are skipped)</label>
-      <input id="folder" type="file" ref={folderInputRef} multiple disabled={uploading} {...folderInputProps} />
+      <label htmlFor="folder">Add a folder (do this more than once to queue multiple folders; non-audio files inside are skipped)</label>
+      <input
+        id="folder"
+        type="file"
+        multiple
+        disabled={uploading}
+        {...folderInputProps}
+        onChange={(e) => {
+          addFiles(e.target.files);
+          e.target.value = "";
+        }}
+      />
+
+      {pendingFiles.length > 0 && (
+        <div className="win-sunken upload-pending-list">
+          <div className="upload-pending-summary">
+            {pendingFiles.length} file{pendingFiles.length === 1 ? "" : "s"} queued ({totalSizeMB} MB)
+            {!uploading && (
+              <button type="button" className="win-button small" onClick={() => setPendingFiles([])}>
+                Clear All
+              </button>
+            )}
+          </div>
+          <ul>
+            {pendingFiles.map((file, i) => (
+              <li key={`${file.name}-${i}`}>
+                <span>{file.name}</span>
+                {!uploading && (
+                  <button type="button" className="win-button small" onClick={() => removePending(i)}>
+                    ✕
+                  </button>
+                )}
+              </li>
+            ))}
+          </ul>
+        </div>
+      )}
 
       <label htmlFor="title">Title (single file only — read from the file if left blank)</label>
       <input id="title" type="text" ref={titleRef} disabled={uploading} />
@@ -152,9 +202,14 @@ export function UploadForm() {
         </div>
       )}
 
-      <button type="submit" className="win-button" disabled={uploading}>
-        {uploading ? "Uploading..." : "Upload"}
+      <button
+        type="button"
+        className="win-button"
+        onClick={handleUpload}
+        disabled={uploading || pendingFiles.length === 0}
+      >
+        {uploading ? "Uploading..." : `Upload${pendingFiles.length > 0 ? ` (${pendingFiles.length})` : ""}`}
       </button>
-    </form>
+    </div>
   );
 }

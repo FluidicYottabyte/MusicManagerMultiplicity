@@ -43,9 +43,16 @@ export const authOptions: AuthOptions = {
       return token;
     },
     async session({ session, token }) {
-      if (session.user) {
-        session.user.id = token.id as string;
-        session.user.isAdmin = token.isAdmin as boolean;
+      // Re-read from the DB rather than trusting the JWT's cached values,
+      // so a username change (or admin toggle) shows up immediately
+      // instead of only after the user logs out and back in.
+      if (session.user && token.id) {
+        const dbUser = await prisma.user.findUnique({ where: { id: token.id as string } });
+        if (dbUser) {
+          session.user.id = dbUser.id;
+          session.user.name = dbUser.username;
+          session.user.isAdmin = dbUser.isAdmin;
+        }
       }
       return session;
     },
