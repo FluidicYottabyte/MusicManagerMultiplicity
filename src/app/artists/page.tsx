@@ -3,6 +3,7 @@ export const dynamic = "force-dynamic";
 
 import Link from "next/link";
 
+import { SearchForm } from "@/components/SearchForm";
 import { prisma } from "@/lib/db";
 
 export default async function ArtistsPage({ searchParams }: { searchParams: { q?: string } }) {
@@ -18,13 +19,7 @@ export default async function ArtistsPage({ searchParams }: { searchParams: { q?
   return (
     <div>
       <h1>Artists</h1>
-      <form method="GET" className="win-panel win-raised">
-        <label htmlFor="q">Search</label>
-        <input id="q" name="q" type="search" defaultValue={q} placeholder="Artist name" />
-        <button type="submit" className="win-button small">
-          Search
-        </button>
-      </form>
+      <SearchForm action="/artists" placeholder="Artist name" defaultValue={q} />
 
       {artists.length === 0 ? (
         <p>{q ? "No matching artists." : "No artists yet — upload some songs first."}</p>

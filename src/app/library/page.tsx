@@ -1,6 +1,7 @@
 // This page always reflects live, per-user session and DB state - never statically pre-render it.
 export const dynamic = "force-dynamic";
 
+import { SearchForm } from "@/components/SearchForm";
 import { SongList } from "@/components/SongList";
 import { requireUser } from "@/lib/auth";
 import { prisma } from "@/lib/db";
@@ -50,13 +51,7 @@ export default async function LibraryPage({
           {searchParams.failed ? ` ${searchParams.failed} file(s) were skipped (unsupported or not audio).` : ""}
         </div>
       )}
-      <form method="GET" className="win-panel win-raised">
-        <label htmlFor="q">Search</label>
-        <input id="q" name="q" type="search" defaultValue={q} placeholder="Title, artist, or album" />
-        <button type="submit" className="win-button small">
-          Search
-        </button>
-      </form>
+      <SearchForm action="/library" placeholder="Title, artist, or album" defaultValue={q} />
       <SongList
         songs={filtered}
         emptyMessage={q ? "No matching songs." : "No songs uploaded yet."}
