@@ -3,16 +3,12 @@ export const dynamic = "force-dynamic";
 
 import { notFound, redirect } from "next/navigation";
 
+import { SongList } from "@/components/SongList";
 import { requireUser } from "@/lib/auth";
 import { prisma } from "@/lib/db";
+import type { SongView } from "@/types/song";
 
-import {
-  deletePlaylist,
-  moveSongDown,
-  moveSongUp,
-  removeSongFromPlaylist,
-  updatePlaylist,
-} from "../../actions";
+import { deletePlaylist, removeSongFromPlaylistQuick, reorderPlaylistSongs, updatePlaylist } from "../../actions";
 import { AvailableSongsList } from "./AvailableSongsList";
 import { ShareLinkButton } from "./ShareLinkButton";
 
@@ -27,7 +23,10 @@ export default async function EditPlaylistPage({
   const playlist = await prisma.playlist.findUnique({
     where: { id: params.playlistId },
     include: {
-      songs: { orderBy: { sortOrder: "asc" }, include: { song: { include: { artists: { include: { artist: true } } } } } },
+      songs: {
+        orderBy: { sortOrder: "asc" },
+        include: { song: { include: { artists: { include: { artist: true } }, album: true } } },
+      },
     },
   });
 
@@ -42,6 +41,14 @@ export default async function EditPlaylistPage({
     include: { artists: { include: { artist: true } } },
     orderBy: { title: "asc" },
   });
+
+  const songs: SongView[] = playlist.songs.map(({ song }) => ({
+    id: song.id,
+    title: song.title,
+    artists: song.artists.map((a) => ({ id: a.artist.id, name: a.artist.name })),
+    album: song.album ? { id: song.album.id, name: song.album.name } : null,
+    coverUrl: song.coverImagePath ? `/api/covers/${song.id}` : "/images/default-cover.png",
+  }));
 
   const boundUpdate = updatePlaylist.bind(null, playlist.id);
 
@@ -62,7 +69,7 @@ export default async function EditPlaylistPage({
             defaultChecked={playlist.imageEnabled}
             style={{ width: "auto", marginRight: 6 }}
           />
-          Use a custom cover image
+          Use custom cover image
         </label>
 
         <label htmlFor="coverImage">Replace cover image (optional)</label>
@@ -76,7 +83,7 @@ export default async function EditPlaylistPage({
             defaultChecked={playlist.isPublic}
             style={{ width: "auto", marginRight: 6 }}
           />
-          Public (visible to everyone; uncheck to make it private, visible only to you)
+          Public (visible to everyone. Uncheck to make it private, visible only to you)
         </label>
 
         <button type="submit" className="win-button">
@@ -98,37 +105,18 @@ export default async function EditPlaylistPage({
 
       <div className="win-panel win-raised">
         <h3>Songs</h3>
-        {playlist.songs.length === 0 ? (
+        {songs.length === 0 ? (
           <p>No songs yet — add some below.</p>
         ) : (
-          <table className="rows">
-            <tbody>
-              {playlist.songs.map(({ song }) => (
-                <tr key={song.id}>
-                  <td>
-                    {song.title} — {song.artists.map((a) => a.artist.name).join(", ")}
-                  </td>
-                  <td>
-                    <form action={moveSongUp.bind(null, playlist.id, song.id)} style={{ display: "inline" }}>
-                      <button type="submit" className="win-button small">
-                        Up
-                      </button>
-                    </form>
-                    <form action={moveSongDown.bind(null, playlist.id, song.id)} style={{ display: "inline" }}>
-                      <button type="submit" className="win-button small">
-                        Down
-                      </button>
-                    </form>
-                    <form action={removeSongFromPlaylist.bind(null, playlist.id, song.id)} style={{ display: "inline" }}>
-                      <button type="submit" className="win-button small">
-                        Remove
-                      </button>
-                    </form>
-                  </td>
-                </tr>
-              ))}
-            </tbody>
-          </table>
+          <>
+            <p>Drag the ⠿ handle to reorder.</p>
+            <SongList
+              songs={songs}
+              isAdmin={user.isAdmin}
+              onReorder={reorderPlaylistSongs.bind(null, playlist.id)}
+              onRemove={removeSongFromPlaylistQuick.bind(null, playlist.id)}
+            />
+          </>
         )}
       </div>
 

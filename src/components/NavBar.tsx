@@ -21,6 +21,7 @@ export function NavBar({ username, isAdmin }: { username: string; isAdmin: boole
       <div>
         <span>{username}</span>
         <LogoutButton />
+        <Link href="/about">About</Link>
       </div>
     </nav>
   );

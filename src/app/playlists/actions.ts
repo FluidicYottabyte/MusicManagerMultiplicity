@@ -10,7 +10,6 @@ import { redirect } from "next/navigation";
 import { requireUser } from "@/lib/auth";
 import { prisma } from "@/lib/db";
 import { ensureStorageDirectories, StoragePaths } from "@/lib/storage";
-import { swapIndices } from "@/lib/playlistOrdering";
 
 const ALLOWED_IMAGE_EXTENSIONS = new Set(["png", "jpg", "jpeg", "gif"]);
 
@@ -166,48 +165,30 @@ export async function quickAddSongsToPlaylist(playlistId: string, songIds: strin
   }
 }
 
-export async function removeSongFromPlaylist(playlistId: string, songId: string): Promise<void> {
-  await requireOwnerOrAdmin(playlistId);
-  await prisma.playlistSong.delete({ where: { playlistId_songId: { playlistId, songId } } });
-  redirect(`/playlists/${playlistId}/edit`);
-}
-
-async function move(playlistId: string, songId: string, direction: -1 | 1): Promise<void> {
-  await requireOwnerOrAdmin(playlistId);
-
-  const entries = await prisma.playlistSong.findMany({
-    where: { playlistId },
-    orderBy: { sortOrder: "asc" },
-  });
-
-  const index = entries.findIndex((e) => e.songId === songId);
-  const swap = index === -1 ? null : swapIndices(entries.length, index, direction);
-
-  if (swap) {
-    const [i, j] = swap;
-    const a = entries[i]!;
-    const b = entries[j]!;
-    await prisma.$transaction([
-      prisma.playlistSong.update({
-        where: { playlistId_songId: { playlistId: a.playlistId, songId: a.songId } },
-        data: { sortOrder: b.sortOrder },
-      }),
-      prisma.playlistSong.update({
-        where: { playlistId_songId: { playlistId: b.playlistId, songId: b.songId } },
-        data: { sortOrder: a.sortOrder },
-      }),
-    ]);
+/** Returns rather than redirects, for SongList's drag-reorderable playlist editor to call directly. */
+export async function removeSongFromPlaylistQuick(playlistId: string, songId: string): Promise<{ ok: boolean }> {
+  try {
+    await requireOwnerOrAdmin(playlistId);
+    await prisma.playlistSong.delete({ where: { playlistId_songId: { playlistId, songId } } });
+    return { ok: true };
+  } catch {
+    return { ok: false };
   }
-
-  redirect(`/playlists/${playlistId}/edit`);
 }
 
-export async function moveSongUp(playlistId: string, songId: string): Promise<void> {
-  await move(playlistId, songId, -1);
-}
+/** Persists a drag-and-drop reorder from the playlist editor by rewriting sortOrder (0-indexed) for the given songs - same pattern as reorderAlbumSongs. */
+export async function reorderPlaylistSongs(playlistId: string, orderedSongIds: string[]): Promise<void> {
+  await requireOwnerOrAdmin(playlistId);
 
-export async function moveSongDown(playlistId: string, songId: string): Promise<void> {
-  await move(playlistId, songId, 1);
+  const playlistSongs = await prisma.playlistSong.findMany({ where: { playlistId }, select: { songId: true } });
+  const validIds = new Set(playlistSongs.map((s) => s.songId));
+
+  const ordered = orderedSongIds.filter((id) => validIds.has(id));
+  await Promise.all(
+    ordered.map((songId, index) =>
+      prisma.playlistSong.update({ where: { playlistId_songId: { playlistId, songId } }, data: { sortOrder: index } })
+    )
+  );
 }
 
 /**

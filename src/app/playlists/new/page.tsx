@@ -14,7 +14,7 @@ export default function NewPlaylistPage({ searchParams }: { searchParams: { erro
 
         <label htmlFor="imageEnabled">
           <input id="imageEnabled" type="checkbox" name="imageEnabled" style={{ width: "auto", marginRight: 6 }} />
-          Use a custom cover image
+          Use custom cover image
         </label>
 
         <label htmlFor="coverImage">Cover image (optional)</label>
@@ -22,7 +22,7 @@ export default function NewPlaylistPage({ searchParams }: { searchParams: { erro
 
         <label htmlFor="isPublic">
           <input id="isPublic" type="checkbox" name="isPublic" defaultChecked style={{ width: "auto", marginRight: 6 }} />
-          Public (visible to everyone; uncheck to make it private, visible only to you)
+          Public (visible to everyone. uncheck to make it private, visible only to you)
         </label>
 
         <button type="submit" className="win-button">

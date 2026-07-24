@@ -141,7 +141,7 @@ export function UploadForm() {
         }}
       />
 
-      <label htmlFor="folder">Add a folder (do this more than once to queue multiple folders; non-audio files inside are skipped)</label>
+      <label htmlFor="folder">Add a folder</label>
       <input
         id="folder"
         type="file"
@@ -179,10 +179,10 @@ export function UploadForm() {
         </div>
       )}
 
-      <label htmlFor="title">Title (single file only — read from the file if left blank)</label>
+      <label htmlFor="title">Title (single file only, will read from the file if left blank)</label>
       <input id="title" type="text" ref={titleRef} disabled={uploading} />
 
-      <label htmlFor="artistNames">Artist(s) — comma-separated (single file only)</label>
+      <label htmlFor="artistNames">Artist(s) (comma-separated) (single file only)</label>
       <input id="artistNames" type="text" ref={artistRef} disabled={uploading} />
 
       <label htmlFor="albumName">Album (single file only)</label>

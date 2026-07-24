@@ -27,6 +27,7 @@ export const config = {
     "/library/:path*",
     "/upload/:path*",
     "/settings/:path*",
+    "/about/:path*",
     "/artists/:path*",
     "/albums/:path*",
     "/playlists/:path*",

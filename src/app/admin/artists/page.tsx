@@ -31,8 +31,7 @@ export default async function AdminArtistsPage({
       <div className="win-panel win-raised">
         <h3>Merge Duplicate Artists</h3>
         <p>
-          If the same artist got added twice under slightly different names, pick which one to keep - every song and
-          album credited to the other one moves over to it, and the duplicate is deleted.
+          Moves all songs from one artist to another, then deletes the merged artist.
         </p>
         {artists.length < 2 ? (
           <p>Need at least two artists to merge.</p>

@@ -16,6 +16,8 @@ interface SongListProps {
   editablePlaylists?: PlaylistRef[];
   /** When provided, rows get a drag handle; dropping calls this with the full new song-id order to persist. */
   onReorder?: (orderedSongIds: string[]) => void;
+  /** When provided, rows get a "Remove" button (e.g. removing a song from the playlist being viewed, as opposed to isAdmin's permanent Delete). */
+  onRemove?: (songId: string) => void;
   /** When true, clicking a row plays that song first, then shuffles the rest of the list (see PlaylistSuperShuffle). */
   superShuffle?: boolean;
 }
@@ -26,6 +28,7 @@ export function SongList({
   isAdmin,
   editablePlaylists,
   onReorder,
+  onRemove,
   superShuffle,
 }: SongListProps) {
   const { playQueue, current } = usePlayer();
@@ -95,6 +98,11 @@ export function SongList({
     playQueue(songs, index, { forceShuffle: superShuffle });
   }
 
+  function handleRemove(songId: string) {
+    onRemove?.(songId);
+    setSongs((prev) => prev.filter((s) => s.id !== songId));
+  }
+
   return (
     <div className="win-sunken song-list">
       <input type="file" accept="image/*" ref={coverInputRef} style={{ display: "none" }} onChange={handleCoverFileChange} />
@@ -143,6 +151,11 @@ export function SongList({
               </td>
               <td className="song-row-actions" onClick={(e) => e.stopPropagation()}>
                 {editablePlaylists && <AddToPlaylistButton songIds={[song.id]} editablePlaylists={editablePlaylists} />}
+                {onRemove && (
+                  <button type="button" className="win-button small" onClick={() => handleRemove(song.id)}>
+                    Remove
+                  </button>
+                )}
                 {isAdmin && (
                   <>
                     <button
