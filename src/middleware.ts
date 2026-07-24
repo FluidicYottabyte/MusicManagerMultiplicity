@@ -35,6 +35,7 @@ export const config = {
     "/api/covers/:path*",
     "/api/playlist-covers/:path*",
     "/api/artist-photos/:path*",
+    "/api/album-covers/:path*",
     "/api/upload/:path*",
   ],
 };

@@ -4,11 +4,12 @@ export const dynamic = "force-dynamic";
 import Link from "next/link";
 import { notFound } from "next/navigation";
 
-import { SongList } from "@/components/SongList";
 import { requireUser } from "@/lib/auth";
 import { prisma } from "@/lib/db";
 import { getEditablePlaylists } from "@/lib/editablePlaylists";
 import type { SongView } from "@/types/song";
+
+import { PlaylistSongsSection } from "./PlaylistSongsSection";
 
 export default async function PlaylistDetailPage({ params }: { params: { playlistId: string } }) {
   const user = await requireUser();
@@ -36,6 +37,9 @@ export default async function PlaylistDetailPage({ params }: { params: { playlis
 
   const canEdit = playlist.ownerId === user.id || user.isAdmin;
   const editablePlaylists = await getEditablePlaylists(user.id, user.isAdmin);
+  const superShuffleRow = await prisma.playlistSuperShuffle.findUnique({
+    where: { userId_playlistId: { userId: user.id, playlistId: playlist.id } },
+  });
 
   return (
     <div>
@@ -46,11 +50,12 @@ export default async function PlaylistDetailPage({ params }: { params: { playlis
           Edit
         </Link>
       )}
-      <SongList
+      <PlaylistSongsSection
+        playlistId={playlist.id}
         songs={songs}
-        emptyMessage="This playlist is empty."
         isAdmin={user.isAdmin}
         editablePlaylists={editablePlaylists}
+        initialSuperShuffle={!!superShuffleRow}
       />
     </div>
   );

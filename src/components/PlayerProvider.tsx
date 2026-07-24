@@ -13,7 +13,7 @@ interface PlayerContextValue {
   volume: number;
   currentTime: number;
   duration: number;
-  playQueue: (songs: SongView[], startIndex: number) => void;
+  playQueue: (songs: SongView[], startIndex: number, options?: { forceShuffle?: boolean }) => void;
   togglePlay: () => void;
   next: () => void;
   prev: () => void;
@@ -42,6 +42,17 @@ function shuffleSongs(songs: SongView[], avoidFirstId: string | null): SongView[
     [arr[0], arr[swapWith]] = [arr[swapWith]!, arr[0]!];
   }
   return arr;
+}
+
+/** For "super shuffle" playlists: play the clicked song first, then shuffle everything after it. */
+function shuffleWithAnchor(songs: SongView[], anchorId: string): SongView[] {
+  const anchor = songs.find((s) => s.id === anchorId);
+  const rest = songs.filter((s) => s.id !== anchorId);
+  for (let i = rest.length - 1; i > 0; i--) {
+    const j = Math.floor(Math.random() * (i + 1));
+    [rest[i], rest[j]] = [rest[j]!, rest[i]!];
+  }
+  return anchor ? [anchor, ...rest] : rest;
 }
 
 export function PlayerProvider({ children }: { children: React.ReactNode }) {
@@ -85,9 +96,18 @@ export function PlayerProvider({ children }: { children: React.ReactNode }) {
   }, [current?.id]);
 
   const playQueue = useCallback(
-    (songs: SongView[], startIndex: number) => {
+    (songs: SongView[], startIndex: number, options?: { forceShuffle?: boolean }) => {
       setBaseQueue(songs);
       const startId = songs[startIndex]?.id ?? null;
+
+      if (options?.forceShuffle && startId) {
+        const activeQueue = shuffleWithAnchor(songs, startId);
+        setQueue(activeQueue);
+        setCurrentIndex(0);
+        setIsPlaying(true);
+        return;
+      }
+
       const activeQueue = shuffleEnabled ? shuffleSongs(songs, startId) : songs;
       setQueue(activeQueue);
       const newIndex = shuffleEnabled ? activeQueue.findIndex((s) => s.id === startId) : startIndex;

@@ -130,20 +130,6 @@ export async function addSongToPlaylist(playlistId: string, songId: string): Pro
   redirect(`/playlists/${playlistId}/edit`);
 }
 
-/**
- * Same as addSongToPlaylist but returns instead of redirecting, for the
- * "quick add" button on song rows elsewhere in the app (library, artist,
- * album, playlist-detail pages) that shouldn't navigate away.
- */
-export async function quickAddSongToPlaylist(playlistId: string, songId: string): Promise<{ ok: boolean }> {
-  try {
-    await addSongToPlaylistInternal(playlistId, songId);
-    return { ok: true };
-  } catch {
-    return { ok: false };
-  }
-}
-
 async function addSongToPlaylistInternal(playlistId: string, songId: string): Promise<void> {
   await requireOwnerOrAdmin(playlistId);
 
@@ -222,4 +208,25 @@ export async function moveSongUp(playlistId: string, songId: string): Promise<vo
 
 export async function moveSongDown(playlistId: string, songId: string): Promise<void> {
   await move(playlistId, songId, 1);
+}
+
+/**
+ * Personal "always shuffle this playlist for me" preference - not an edit
+ * to the playlist itself, so any signed-in user who can view it may toggle
+ * their own preference, regardless of ownership.
+ */
+export async function toggleSuperShuffle(playlistId: string): Promise<{ enabled: boolean }> {
+  const user = await requireUser();
+
+  const existing = await prisma.playlistSuperShuffle.findUnique({
+    where: { userId_playlistId: { userId: user.id, playlistId } },
+  });
+
+  if (existing) {
+    await prisma.playlistSuperShuffle.delete({ where: { userId_playlistId: { userId: user.id, playlistId } } });
+    return { enabled: false };
+  }
+
+  await prisma.playlistSuperShuffle.create({ data: { userId: user.id, playlistId } });
+  return { enabled: true };
 }

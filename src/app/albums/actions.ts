@@ -1,15 +1,50 @@
 "use server";
 
+import { randomUUID } from "node:crypto";
+import { writeFile } from "node:fs/promises";
+import path from "node:path";
+
 import { redirect } from "next/navigation";
 
 import { requireAdmin } from "@/lib/auth";
 import { prisma } from "@/lib/db";
+import { ensureStorageDirectories, StoragePaths } from "@/lib/storage";
+import { isUploadableFile } from "@/lib/uploadSong";
+
+const ALLOWED_IMAGE_EXTENSIONS = new Set(["png", "jpg", "jpeg", "gif"]);
 
 /** Deletes the album itself. Songs in it are kept (albumId just goes back to null - see Song.album's onDelete: SetNull), not deleted. */
 export async function deleteAlbum(albumId: string): Promise<void> {
   await requireAdmin();
   await prisma.album.delete({ where: { id: albumId } });
   redirect("/albums");
+}
+
+export async function renameAlbum(albumId: string, newName: string): Promise<{ ok: boolean }> {
+  await requireAdmin();
+
+  const trimmed = newName.trim();
+  if (!trimmed) return { ok: false };
+
+  await prisma.album.update({ where: { id: albumId }, data: { name: trimmed } });
+  return { ok: true };
+}
+
+export async function setAlbumCover(albumId: string, formData: FormData): Promise<{ ok: boolean }> {
+  await requireAdmin();
+
+  const file = formData.get("cover");
+  if (!isUploadableFile(file)) return { ok: false };
+
+  const ext = path.extname(file.name).slice(1).toLowerCase();
+  if (!ALLOWED_IMAGE_EXTENSIONS.has(ext)) return { ok: false };
+
+  await ensureStorageDirectories();
+  const filename = `${randomUUID()}.${ext}`;
+  await writeFile(path.join(StoragePaths.albumCoverDir, filename), Buffer.from(await file.arrayBuffer()));
+
+  await prisma.album.update({ where: { id: albumId }, data: { coverImagePath: filename } });
+  return { ok: true };
 }
 
 /**

@@ -3,6 +3,7 @@ export const dynamic = "force-dynamic";
 
 import { SearchForm } from "@/components/SearchForm";
 import { SongList } from "@/components/SongList";
+import { SortTabs } from "@/components/SortTabs";
 import { requireUser } from "@/lib/auth";
 import { prisma } from "@/lib/db";
 import { getEditablePlaylists } from "@/lib/editablePlaylists";
@@ -15,14 +16,15 @@ function coverUrl(songId: string, hasCover: boolean): string {
 export default async function LibraryPage({
   searchParams,
 }: {
-  searchParams: { q?: string; uploaded?: string; failed?: string };
+  searchParams: { q?: string; uploaded?: string; failed?: string; sort?: string };
 }) {
   const user = await requireUser();
   const q = searchParams.q?.trim() ?? "";
+  const sort = searchParams.sort === "newest" || searchParams.sort === "oldest" ? searchParams.sort : "title";
 
   const songs = await prisma.song.findMany({
     include: { artists: { include: { artist: true } }, album: true },
-    orderBy: { title: "asc" },
+    orderBy: sort === "newest" ? { createdAt: "desc" } : sort === "oldest" ? { createdAt: "asc" } : { title: "asc" },
   });
 
   const views: SongView[] = songs.map((song) => ({
@@ -52,6 +54,7 @@ export default async function LibraryPage({
         </div>
       )}
       <SearchForm action="/library" placeholder="Title, artist, or album" defaultValue={q} />
+      <SortTabs basePath="/library" q={q} current={sort} />
       <SongList
         songs={filtered}
         emptyMessage={q ? "No matching songs." : "No songs uploaded yet."}

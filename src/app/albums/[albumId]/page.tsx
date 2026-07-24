@@ -12,6 +12,7 @@ import type { SongView } from "@/types/song";
 
 import { reorderAlbumSongs } from "../actions";
 import { AlbumActions } from "./AlbumActions";
+import { AlbumAdminControls } from "./AlbumAdminControls";
 import { DeleteAlbumButton } from "./DeleteAlbumButton";
 
 export default async function AlbumDetailPage({ params }: { params: { albumId: string } }) {
@@ -39,7 +40,9 @@ export default async function AlbumDetailPage({ params }: { params: { albumId: s
     coverUrl: song.coverImagePath ? `/api/covers/${song.id}` : "/images/default-cover.png",
   }));
 
-  const coverUrl = songs.find((s) => s.coverUrl !== "/images/default-cover.png")?.coverUrl ?? "/images/default-cover.png";
+  const coverUrl = album.coverImagePath
+    ? `/api/album-covers/${album.id}`
+    : (songs.find((s) => s.coverUrl !== "/images/default-cover.png")?.coverUrl ?? "/images/default-cover.png");
   const editablePlaylists = await getEditablePlaylists(user.id, user.isAdmin);
 
   return (
@@ -58,7 +61,12 @@ export default async function AlbumDetailPage({ params }: { params: { albumId: s
             ))}
           </p>
           <AlbumActions songs={songs} editablePlaylists={editablePlaylists} />
-          {user.isAdmin && <DeleteAlbumButton albumId={album.id} />}
+          {user.isAdmin && (
+            <>
+              <AlbumAdminControls albumId={album.id} name={album.name} />
+              <DeleteAlbumButton albumId={album.id} />
+            </>
+          )}
         </div>
       </div>
       {user.isAdmin && songs.length > 1 && <p>Drag the ⠿ handle to reorder songs within this album.</p>}

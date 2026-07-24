@@ -25,6 +25,7 @@ model User {
 
   uploadedSongs Song[]
   playlists     Playlist[]
+  superShuffles PlaylistSuperShuffle[]
 }
 
 model Artist {
@@ -114,7 +115,20 @@ model Playlist {
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 
-  songs PlaylistSong[]
+  songs         PlaylistSong[]
+  superShuffles PlaylistSuperShuffle[]
+}
+
+// Per-user "always shuffle this playlist for me" preference. A row's mere
+// existence means it's enabled - no separate boolean needed.
+model PlaylistSuperShuffle {
+  userId     String
+  playlistId String
+
+  user     User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  playlist Playlist @relation(fields: [playlistId], references: [id], onDelete: Cascade)
+
+  @@id([userId, playlistId])
 }
 
 model PlaylistSong {

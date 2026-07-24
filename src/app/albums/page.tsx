@@ -27,7 +27,11 @@ export default async function AlbumsPage({ searchParams }: { searchParams: { q?:
         <div className="card-grid">
           {albums.map((album) => {
             const firstWithCover = album.songs.find((s) => s.coverImagePath !== null);
-            const coverUrl = firstWithCover ? `/api/covers/${firstWithCover.id}` : "/images/default-cover.png";
+            const coverUrl = album.coverImagePath
+              ? `/api/album-covers/${album.id}`
+              : firstWithCover
+                ? `/api/covers/${firstWithCover.id}`
+                : "/images/default-cover.png";
             return (
               <Link key={album.id} href={`/albums/${album.id}`} className="card">
                 <img src={coverUrl} alt="" />

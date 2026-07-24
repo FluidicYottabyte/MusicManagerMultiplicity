@@ -9,6 +9,7 @@ export const StoragePaths = {
   coverDir: path.join(root, "covers"),
   playlistCoverDir: path.join(root, "playlist-covers"),
   artistPhotoDir: path.join(root, "artist-photos"),
+  albumCoverDir: path.join(root, "album-covers"),
   tmpDir: path.join(root, "tmp"),
 };
 
@@ -19,6 +20,7 @@ export async function ensureStorageDirectories(): Promise<void> {
       StoragePaths.coverDir,
       StoragePaths.playlistCoverDir,
       StoragePaths.artistPhotoDir,
+      StoragePaths.albumCoverDir,
       StoragePaths.tmpDir,
     ].map((dir) => mkdir(dir, { recursive: true }))
   );

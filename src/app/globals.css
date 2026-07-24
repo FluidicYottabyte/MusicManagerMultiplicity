@@ -237,6 +237,19 @@ table.rows img.thumb {
     gap: 10px;
 }
 
+/* Roughly 4 card rows (140px image + text + gaps) before scrolling kicks in. */
+.playlist-scroll-grid {
+    max-height: 820px;
+    overflow-y: auto;
+    padding-right: 4px;
+}
+
+.section-divider {
+    border: none;
+    border-top: 2px solid var(--border);
+    margin: 18px 0;
+}
+
 .card {
     text-align: center;
     padding: 8px;
@@ -389,6 +402,13 @@ table.rows img.thumb {
     white-space: nowrap;
 }
 
+.sort-tabs {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    margin-bottom: 10px;
+}
+
 /* ---- Song row action buttons + add-to-playlist popover ---- */
 
 .song-row-links {
@@ -404,7 +424,6 @@ table.rows img.thumb {
 }
 
 .song-row-actions {
-    position: relative;
     white-space: nowrap;
 }
 
@@ -419,15 +438,21 @@ table.rows img.thumb {
     cursor: grabbing;
 }
 
+/* position/top/left are set inline (see AddToPlaylistButton) via the
+   trigger button's bounding rect, since this renders through a portal
+   into document.body rather than relative to an ancestor - deliberately,
+   so it can't get clipped by .song-list's overflow-y: auto. */
 .playlist-popover {
-    position: absolute;
-    right: 0;
-    top: 100%;
     z-index: 50;
     width: 220px;
-    max-height: 220px;
+    max-height: 240px;
     overflow-y: auto;
     padding: 4px;
+}
+
+.playlist-popover input[type="search"] {
+    width: 100%;
+    margin-bottom: 4px;
 }
 
 .playlist-popover button {

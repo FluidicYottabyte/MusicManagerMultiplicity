@@ -7,13 +7,13 @@ import { requireUser } from "@/lib/auth";
 import { prisma } from "@/lib/db";
 
 import {
-  addSongToPlaylist,
   deletePlaylist,
   moveSongDown,
   moveSongUp,
   removeSongFromPlaylist,
   updatePlaylist,
 } from "../../actions";
+import { AvailableSongsList } from "./AvailableSongsList";
 import { ShareLinkButton } from "./ShareLinkButton";
 
 export default async function EditPlaylistPage({
@@ -137,24 +137,14 @@ export default async function EditPlaylistPage({
         {availableSongs.length === 0 ? (
           <p>All songs in the library are already in this playlist.</p>
         ) : (
-          <table className="rows">
-            <tbody>
-              {availableSongs.map((song) => (
-                <tr key={song.id}>
-                  <td>
-                    {song.title} — {song.artists.map((a) => a.artist.name).join(", ")}
-                  </td>
-                  <td>
-                    <form action={addSongToPlaylist.bind(null, playlist.id, song.id)} style={{ display: "inline" }}>
-                      <button type="submit" className="win-button small">
-                        Add
-                      </button>
-                    </form>
-                  </td>
-                </tr>
-              ))}
-            </tbody>
-          </table>
+          <AvailableSongsList
+            playlistId={playlist.id}
+            songs={availableSongs.map((s) => ({
+              id: s.id,
+              title: s.title,
+              artistNames: s.artists.map((a) => a.artist.name).join(", "),
+            }))}
+          />
         )}
       </div>
     </div>

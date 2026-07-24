@@ -1,11 +1,11 @@
 "use client";
 
 import Link from "next/link";
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 
+import { AddToPlaylistButton } from "@/components/AddToPlaylistButton";
 import { usePlayer } from "@/components/PlayerProvider";
-import { deleteSong } from "@/app/library/actions";
-import { quickAddSongToPlaylist } from "@/app/playlists/actions";
+import { deleteSong, renameSong, setSongCover } from "@/app/library/actions";
 import type { PlaylistRef } from "@/lib/editablePlaylists";
 import type { SongView } from "@/types/song";
 
@@ -16,14 +16,23 @@ interface SongListProps {
   editablePlaylists?: PlaylistRef[];
   /** When provided, rows get a drag handle; dropping calls this with the full new song-id order to persist. */
   onReorder?: (orderedSongIds: string[]) => void;
+  /** When true, clicking a row plays that song first, then shuffles the rest of the list (see PlaylistSuperShuffle). */
+  superShuffle?: boolean;
 }
 
-export function SongList({ songs: initialSongs, emptyMessage, isAdmin, editablePlaylists, onReorder }: SongListProps) {
+export function SongList({
+  songs: initialSongs,
+  emptyMessage,
+  isAdmin,
+  editablePlaylists,
+  onReorder,
+  superShuffle,
+}: SongListProps) {
   const { playQueue, current } = usePlayer();
   const [songs, setSongs] = useState(initialSongs);
-  const [openMenuFor, setOpenMenuFor] = useState<string | null>(null);
-  const [addedTo, setAddedTo] = useState<Set<string>>(new Set());
   const [draggedIndex, setDraggedIndex] = useState<number | null>(null);
+  const coverInputRef = useRef<HTMLInputElement>(null);
+  const [coverTargetId, setCoverTargetId] = useState<string | null>(null);
 
   useEffect(() => setSongs(initialSongs), [initialSongs]);
 
@@ -39,11 +48,34 @@ export function SongList({ songs: initialSongs, emptyMessage, isAdmin, editableP
     }
   }
 
-  async function handleAddToPlaylist(playlistId: string, songId: string) {
-    const result = await quickAddSongToPlaylist(playlistId, songId);
+  async function handleRename(songId: string, currentTitle: string) {
+    const newTitle = window.prompt("New title:", currentTitle);
+    if (!newTitle || newTitle.trim() === currentTitle) return;
+    const result = await renameSong(songId, newTitle);
     if (result.ok) {
-      setAddedTo((prev) => new Set(prev).add(`${playlistId}:${songId}`));
+      setSongs((prev) => prev.map((s) => (s.id === songId ? { ...s, title: newTitle.trim() } : s)));
     }
+  }
+
+  function handleCoverButtonClick(songId: string) {
+    setCoverTargetId(songId);
+    coverInputRef.current?.click();
+  }
+
+  async function handleCoverFileChange(e: React.ChangeEvent<HTMLInputElement>) {
+    const file = e.target.files?.[0];
+    e.target.value = "";
+    if (!file || !coverTargetId) return;
+    const targetId = coverTargetId;
+    const formData = new FormData();
+    formData.set("cover", file);
+    const result = await setSongCover(targetId, formData);
+    if (result.ok) {
+      setSongs((prev) =>
+        prev.map((s) => (s.id === targetId ? { ...s, coverUrl: `/api/covers/${s.id}?v=${Date.now()}` } : s))
+      );
+    }
+    setCoverTargetId(null);
   }
 
   function handleDrop(dropIndex: number) {
@@ -59,8 +91,13 @@ export function SongList({ songs: initialSongs, emptyMessage, isAdmin, editableP
     onReorder(reordered.map((s) => s.id));
   }
 
+  function handlePlay(index: number) {
+    playQueue(songs, index, { forceShuffle: superShuffle });
+  }
+
   return (
     <div className="win-sunken song-list">
+      <input type="file" accept="image/*" ref={coverInputRef} style={{ display: "none" }} onChange={handleCoverFileChange} />
       <table className="rows">
         <tbody>
           {songs.map((song, index) => (
@@ -80,20 +117,10 @@ export function SongList({ songs: initialSongs, emptyMessage, isAdmin, editableP
                   ⠿
                 </td>
               )}
-              <td
-                onClick={() => {
-                  playQueue(songs, index);
-                  setOpenMenuFor(null);
-                }}
-              >
+              <td onClick={() => handlePlay(index)}>
                 <img className="thumb" src={song.coverUrl} alt="" />
               </td>
-              <td
-                onClick={() => {
-                  playQueue(songs, index);
-                  setOpenMenuFor(null);
-                }}
-              >
+              <td onClick={() => handlePlay(index)}>
                 <div>{song.title}</div>
                 <div className="song-row-links">
                   {song.artists.map((artist, i) => (
@@ -114,51 +141,24 @@ export function SongList({ songs: initialSongs, emptyMessage, isAdmin, editableP
                   )}
                 </div>
               </td>
-              <td className="song-row-actions">
-                {editablePlaylists && (
+              <td className="song-row-actions" onClick={(e) => e.stopPropagation()}>
+                {editablePlaylists && <AddToPlaylistButton songIds={[song.id]} editablePlaylists={editablePlaylists} />}
+                {isAdmin && (
                   <>
                     <button
                       type="button"
                       className="win-button small"
-                      onClick={(e) => {
-                        e.stopPropagation();
-                        setOpenMenuFor((cur) => (cur === song.id ? null : song.id));
-                      }}
+                      onClick={() => void handleRename(song.id, song.title)}
                     >
-                      + Playlist
+                      Rename
                     </button>
-                    {openMenuFor === song.id && (
-                      <div className="win-raised playlist-popover" onClick={(e) => e.stopPropagation()}>
-                        {editablePlaylists.length === 0 && <div>No editable playlists yet.</div>}
-                        {editablePlaylists.map((playlist) => {
-                          const key = `${playlist.id}:${song.id}`;
-                          return (
-                            <button
-                              key={playlist.id}
-                              type="button"
-                              className="win-button small"
-                              disabled={addedTo.has(key)}
-                              onClick={() => handleAddToPlaylist(playlist.id, song.id)}
-                            >
-                              {addedTo.has(key) ? `Added to ${playlist.name}` : playlist.name}
-                            </button>
-                          );
-                        })}
-                      </div>
-                    )}
+                    <button type="button" className="win-button small" onClick={() => handleCoverButtonClick(song.id)}>
+                      Cover
+                    </button>
+                    <button type="button" className="win-button small" onClick={() => void handleDelete(song.id)}>
+                      Delete
+                    </button>
                   </>
-                )}
-                {isAdmin && (
-                  <button
-                    type="button"
-                    className="win-button small"
-                    onClick={(e) => {
-                      e.stopPropagation();
-                      void handleDelete(song.id);
-                    }}
-                  >
-                    Delete
-                  </button>
                 )}
               </td>
             </tr>
