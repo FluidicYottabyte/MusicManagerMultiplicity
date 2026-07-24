@@ -336,6 +336,9 @@ namespace MusicManagerMultiplicity
             userSettings.SetVolume((int)(Math.Round(VolumeSlider.Value)));
 
             Trace.WriteLine("Volume will now be saved as: " + ((int)(Math.Round(VolumeSlider.Value))).ToString());
+
+            // Save the settings to disk
+            JsonHelper.SaveSettingsToJson(userSettings);
         }
 
         private void OpenUserSettings(object sender, RoutedEventArgs e)
