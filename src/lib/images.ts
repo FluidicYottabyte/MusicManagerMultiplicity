@@ -21,8 +21,8 @@ const ALLOWED_IMAGE_EXTENSIONS = new Set(["png", "jpg", "jpeg", "gif"]);
  * matching what every cover-serving route already assumes
  * (Content-Type: image/jpeg).
  */
-export async function saveResizedImage(file: File, destDir: string): Promise<string> {
-  if (!(file instanceof NodeFile) || file.size === 0) {
+export async function saveResizedImage(file: NodeFile, destDir: string): Promise<string> {
+  if (file.size === 0) {
     throw new Error("No file provided");
   }
   const ext = path.extname(file.name).slice(1).toLowerCase();
