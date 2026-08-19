@@ -1,4 +1,3 @@
-import { File as NodeFile } from "node:buffer";
 import { randomUUID } from "node:crypto";
 import { createReadStream } from "node:fs";
 import { rm, stat, writeFile } from "node:fs/promises";
@@ -14,6 +13,20 @@ import { resizeImageToJpeg } from "@/lib/transcode";
 const ALLOWED_IMAGE_EXTENSIONS = new Set(["png", "jpg", "jpeg", "gif"]);
 
 /**
+ * The web File type and node:buffer's File type both exist at runtime but
+ * aren't assignable to each other in either direction (their Blob-derived
+ * slice()/stream() signatures conflict) - callers of saveResizedImage get
+ * one or the other depending on how they narrowed formData.get(...). Only
+ * the handful of members actually used here are declared, so either
+ * concrete File type satisfies this structurally.
+ */
+interface UploadedFile {
+  name: string;
+  size: number;
+  arrayBuffer(): Promise<ArrayBuffer>;
+}
+
+/**
  * Validates and saves an admin-uploaded cover/photo image into destDir,
  * downsizing it via ffmpeg along the way (see resizeImageToJpeg) so full
  * resolution originals never pile up on disk or get shipped to the browser.
@@ -21,7 +34,7 @@ const ALLOWED_IMAGE_EXTENSIONS = new Set(["png", "jpg", "jpeg", "gif"]);
  * matching what every cover-serving route already assumes
  * (Content-Type: image/jpeg).
  */
-export async function saveResizedImage(file: NodeFile, destDir: string): Promise<string> {
+export async function saveResizedImage(file: UploadedFile, destDir: string): Promise<string> {
   if (file.size === 0) {
     throw new Error("No file provided");
   }
