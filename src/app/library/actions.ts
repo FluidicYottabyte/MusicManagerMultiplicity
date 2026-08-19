@@ -1,15 +1,12 @@
 "use server";
 
-import { randomUUID } from "node:crypto";
-import { rm, writeFile } from "node:fs/promises";
-import path from "node:path";
+import { rm } from "node:fs/promises";
 
 import { requireAdmin } from "@/lib/auth";
 import { prisma } from "@/lib/db";
-import { ensureStorageDirectories, resolveStoragePath, StoragePaths } from "@/lib/storage";
+import { saveResizedImage } from "@/lib/images";
+import { resolveStoragePath, StoragePaths } from "@/lib/storage";
 import { isUploadableFile } from "@/lib/uploadSong";
-
-const ALLOWED_IMAGE_EXTENSIONS = new Set(["png", "jpg", "jpeg", "gif"]);
 
 export async function deleteSong(songId: string): Promise<{ ok: boolean }> {
   await requireAdmin();
@@ -49,12 +46,12 @@ export async function setSongCover(songId: string, formData: FormData): Promise<
   const file = formData.get("cover");
   if (!isUploadableFile(file)) return { ok: false };
 
-  const ext = path.extname(file.name).slice(1).toLowerCase();
-  if (!ALLOWED_IMAGE_EXTENSIONS.has(ext)) return { ok: false };
-
-  await ensureStorageDirectories();
-  const filename = `${randomUUID()}.${ext}`;
-  await writeFile(path.join(StoragePaths.coverDir, filename), Buffer.from(await file.arrayBuffer()));
+  let filename: string;
+  try {
+    filename = await saveResizedImage(file, StoragePaths.coverDir);
+  } catch {
+    return { ok: false };
+  }
 
   await prisma.song.update({ where: { id: songId }, data: { coverImagePath: filename } });
   return { ok: true };

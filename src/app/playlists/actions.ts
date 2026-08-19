@@ -2,16 +2,13 @@
 
 import { File as NodeFile } from "node:buffer";
 import { randomUUID } from "node:crypto";
-import { writeFile } from "node:fs/promises";
-import path from "node:path";
 
 import { redirect } from "next/navigation";
 
 import { requireUser } from "@/lib/auth";
 import { prisma } from "@/lib/db";
-import { ensureStorageDirectories, StoragePaths } from "@/lib/storage";
-
-const ALLOWED_IMAGE_EXTENSIONS = new Set(["png", "jpg", "jpeg", "gif"]);
+import { saveResizedImage } from "@/lib/images";
+import { StoragePaths } from "@/lib/storage";
 
 async function requireOwnerOrAdmin(playlistId: string) {
   const user = await requireUser();
@@ -23,14 +20,7 @@ async function requireOwnerOrAdmin(playlistId: string) {
 }
 
 async function saveCoverImage(file: NodeFile): Promise<string> {
-  const ext = path.extname(file.name).slice(1).toLowerCase();
-  if (!ALLOWED_IMAGE_EXTENSIONS.has(ext)) {
-    throw new Error("Unsupported image type");
-  }
-  await ensureStorageDirectories();
-  const filename = `${randomUUID()}.${ext}`;
-  await writeFile(path.join(StoragePaths.playlistCoverDir, filename), Buffer.from(await file.arrayBuffer()));
-  return filename;
+  return saveResizedImage(file, StoragePaths.playlistCoverDir);
 }
 
 export async function createPlaylist(formData: FormData): Promise<void> {

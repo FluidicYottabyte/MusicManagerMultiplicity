@@ -409,6 +409,14 @@ table.rows img.thumb {
     margin-bottom: 10px;
 }
 
+.pagination {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 12px;
+    margin-top: 10px;
+}
+
 /* ---- Song row action buttons + add-to-playlist popover ---- */
 
 .song-row-links {

@@ -1,17 +1,12 @@
 "use server";
 
-import { randomUUID } from "node:crypto";
-import { writeFile } from "node:fs/promises";
-import path from "node:path";
-
 import { redirect } from "next/navigation";
 
 import { requireUser } from "@/lib/auth";
 import { prisma } from "@/lib/db";
-import { ensureStorageDirectories, StoragePaths } from "@/lib/storage";
+import { saveResizedImage } from "@/lib/images";
+import { StoragePaths } from "@/lib/storage";
 import { isUploadableFile } from "@/lib/uploadSong";
-
-const ALLOWED_IMAGE_EXTENSIONS = new Set(["png", "jpg", "jpeg", "gif"]);
 
 export async function setArtistPhoto(artistId: string, formData: FormData): Promise<void> {
   await requireUser();
@@ -21,14 +16,12 @@ export async function setArtistPhoto(artistId: string, formData: FormData): Prom
     redirect(`/artists/${artistId}?error=Please+choose+an+image`);
   }
 
-  const ext = path.extname(file.name).slice(1).toLowerCase();
-  if (!ALLOWED_IMAGE_EXTENSIONS.has(ext)) {
+  let filename: string;
+  try {
+    filename = await saveResizedImage(file, StoragePaths.artistPhotoDir);
+  } catch {
     redirect(`/artists/${artistId}?error=Unsupported+image+type`);
   }
-
-  await ensureStorageDirectories();
-  const filename = `${randomUUID()}.${ext}`;
-  await writeFile(path.join(StoragePaths.artistPhotoDir, filename), Buffer.from(await file.arrayBuffer()));
 
   await prisma.artist.update({ where: { id: artistId }, data: { photoPath: filename } });
 
